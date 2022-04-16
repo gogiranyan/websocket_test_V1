@@ -12,7 +12,6 @@
 <script>
     // Create WebSocket connection.
     const socket = new WebSocket('ws://localhost:3000');
-
     // Connection opened
     socket.addEventListener('open', function (event) {
         console.log('Connected to WS Server')
@@ -24,7 +23,12 @@
     });
 
     const sendMessage = () => {
-        socket.send('Hello From Client1!');
+        let account_info = {
+            account: "bob",
+            password: "bobp"
+        }
+        socket.send(JSON.stringify(account_info));
+        
     }
 </script>
 </html>
