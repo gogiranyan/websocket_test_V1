@@ -19,6 +19,11 @@ wss.on('connection', function connection(ws) {
     });
     
   });
+
+
+  ws.onclose = () => {
+    console.log('close connection');
+  }
 });
 
 app.get('/', (req, res) => res.send('Hello World!'))
