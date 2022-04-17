@@ -11,7 +11,9 @@ const url = require('url');
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "bses10302"
+  password: "bses10302",
+  database: "test"
+
 });
 con.connect(function(err) {
   if (err) throw err;
@@ -25,7 +27,6 @@ wss.on('connection', function connection(ws) {
   ws.send('Welcome New Client!');
   
   ws.on('message', function incoming(message) {
-  // console.log('received: %s', message);
     let obj = JSON.parse(message);
     console.log(obj)
     
@@ -42,8 +43,10 @@ wss.on('connection', function connection(ws) {
       }else if(obj.device === 'phone'){
         
       }
-      console.log(obj);
-    }all_machine(obj,CLIENTS,ws);
+    }
+    all_machine(obj,CLIENTS,ws);
+    access(obj,ws)
+    new_access(obj,ws)
 
   });
 
@@ -57,14 +60,55 @@ wss.on('connection', function connection(ws) {
       i++
     })
     i = 0
-    console.log(CLIENTS)
   })
   
 });
+
 function all_machine(obj,CLIENTS,ws){
   if(obj.all_machine == true){
     ws.send(CLIENTS.length);
-    console.log(CLIENTS.length-1)
+    console.log('all_machine'+CLIENTS.length-1)
+
+  }
+}
+function access(obj,ws){
+  if(obj.access == true){
+    con.query("SELECT * FROM access", function (err, result, fields) {
+      if (err) throw err;
+      let i = 'false'
+      result.forEach(e=>{
+        if(e.account == obj.account && e.password === obj.password){
+          i = 'true'
+        }
+      })
+      ws.send(i);
+      console.log('access' + i)
+    });
+  }
+}
+function new_access(obj,ws){
+  if(obj.new_access == true){
+    con.query("SELECT * FROM access", function (err, result, fields) {
+      if (err) throw err;
+      let i = 'false'
+      result.forEach(e=>{
+        if(e.account == obj.account){
+          i = 'true'
+        }
+      })
+      console.log('in'+i)
+      if(i =='false'){
+        var sql = "INSERT INTO access (account, password) VALUES ('"+obj.account+"','"+ obj.password+"')";
+         con.query(sql, function (err, result) {
+          if (err) throw err;
+      });
+      i = 'true'
+      }else{
+        i = 'false'
+      }
+      ws.send(i);
+      console.log('new_access: ' + i)
+    });
   }
 }
 

@@ -16,10 +16,9 @@
     socket.addEventListener('open', function (event) {
         console.log('Connected to WS Server')
         socket.send(JSON.stringify({
-            all_machine:true,
-            id: 23,
-            login: true,
-            device:'machine'
+            new_access:true,
+            account:"bob2",
+            password:"bobp1"
         }))
     });
 
