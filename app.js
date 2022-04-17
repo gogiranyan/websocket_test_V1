@@ -19,32 +19,24 @@ con.connect(function(err) {
   if (err) throw err;
   console.log("Server is Connected!");
 });
-
+//websocket server
 const wss = new WebSocket.Server({ server:server });
 let CLIENTS = []
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
-  
+  //接收client訊息後依obj的json內容進function做處理
   ws.on('message', function incoming(message) {
     let obj = JSON.parse(message);
     console.log(obj)
     
-    if(obj.login == true){
-      let temp ={
-        ws:ws,
-        device:obj.device,
-        id:obj.id
-      }
-      CLIENTS.push(temp)
-    }
     check_in(obj,CLIENTS,ws);
     all_machine(obj,CLIENTS,ws);
     access(obj,ws)
     new_access(obj,ws)
 
   });
-
+//裝置關閉後splice CLIENTS
   ws.addEventListener('close', function(event) {
     console.log('client end');
     let i = 0; 
