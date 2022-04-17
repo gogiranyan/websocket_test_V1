@@ -39,7 +39,9 @@ wss.on('connection', function connection(ws) {
 
   });
 
-
+  ws.addEventListener('close', function(event) {
+    console.log(event)
+  })
   ws.onclose = (event) => {
     console.log('close connection');
     
