@@ -15,17 +15,23 @@
     // Connection opened
     socket.addEventListener('open', function (event) {
         console.log('Connected to WS Server')
+        socket.send(JSON.stringify("machine_id = 20"))
     });
 
     // Listen for messages
     socket.addEventListener('message', function (event) {
         console.log('Message from server ', event.data);
     });
+    socket.addEventListener('closed',function(event){
+        socket.send(JSON.stringify("machine_end"));
+    })
 
     const sendMessage = () => {
         let account_info = {
             account: "bob",
-            password: "bobp"
+            password: "bobp",
+            subjec: "non"
+
         }
         socket.send(JSON.stringify(account_info));
         
