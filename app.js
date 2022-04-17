@@ -6,6 +6,7 @@ const WebSocket = require('ws');
 const mysql = require('mysql');
 const { Socket } = require('dgram');
 const url = require('url');
+const { clone } = require('nodemon/lib/utils');
 
 //connect mysql---------------
 var con = mysql.createConnection({
@@ -34,6 +35,7 @@ wss.on('connection', function connection(ws) {
     all_machine(obj,CLIENTS,ws);
     access(obj,ws)
     new_access(obj,ws)
+    get_subject(obj,ws)
 
   });
 //裝置關閉後splice CLIENTS
@@ -109,8 +111,16 @@ function new_access(obj,ws){
   }
 }
 function get_subject(obj,ws){
+  let buffer
   if(obj.get_subject == true){
-
+      let sql = "SELECT * FROM subject";
+      
+      con.query(sql,function(err,result){
+        if (err) throw err;
+        buffer = JSON.stringify(result)
+        // console.log(JSON.stringify(result))
+      });
+      console.log(buffer);
   }
 }
 
