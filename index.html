@@ -16,7 +16,8 @@
     socket.addEventListener('open', function (event) {
         console.log('Connected to WS Server')
         socket.send(JSON.stringify({
-            id: 22,
+            all_machine:true,
+            id: 23,
             login: true,
             device:'machine'
         }))

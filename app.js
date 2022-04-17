@@ -23,32 +23,27 @@ let CLIENTS = []
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
-  console.log(typeof(ws))
   
   ws.on('message', function incoming(message) {
   // console.log('received: %s', message);
-    console.log(message);
     let obj = JSON.parse(message);
+    console.log(obj)
+    
     if(obj.login == true){
       let temp ={
         ws:ws,
         device:obj.device,
         id:obj.id
       }
-      CLIENTS.push(temp);
-      console.log(CLIENTS)
-
-    }
-
-
-
-    if(obj.device === 'machine' && obj.info == true){
+      CLIENTS.push(temp)
+    }else{
+      if(obj.device == 'machine'){
       let machine
-    }else if(obj.device === 'phone'){
-      
-    }
-    console.log(obj);
-
+      }else if(obj.device === 'phone'){
+        
+      }
+      console.log(obj);
+    }all_machine(obj,CLIENTS,ws);
 
   });
 
@@ -66,6 +61,17 @@ wss.on('connection', function connection(ws) {
   })
   
 });
+function all_machine(obj,CLIENTS,ws){
+  if(obj.all_machine == true){
+    ws.send(CLIENTS.length);
+    console.log(CLIENTS.length-1)
+  }
+}
+
+
+
+
+
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
