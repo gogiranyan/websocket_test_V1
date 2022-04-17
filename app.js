@@ -19,44 +19,52 @@ con.connect(function(err) {
 });
 
 const wss = new WebSocket.Server({ server:server });
-
+let CLIENTS = []
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
-
+  console.log(typeof(ws))
+  
   ws.on('message', function incoming(message) {
   // console.log('received: %s', message);
+    console.log(message);
     let obj = JSON.parse(message);
-    if(obj.device === 'machine' && obj.info == ture){
+    if(obj.login == true){
+      let temp ={
+        ws:ws,
+        device:obj.device,
+        id:obj.id
+      }
+      CLIENTS.push(temp);
+      console.log(CLIENTS)
+
+    }
+
+
+
+    if(obj.device === 'machine' && obj.info == true){
       let machine
     }else if(obj.device === 'phone'){
       
     }
-
-    console.log(JSON.parse(message));
     console.log(obj);
 
 
   });
 
   ws.addEventListener('close', function(event) {
-    console.log(event)
+    console.log('client end');
+    let i = 0; 
+    CLIENTS.forEach(e=>{
+	    if(e.ws === ws){
+        CLIENTS.splice(i, 1);
+      } 
+      i++
+    })
+    i = 0
+    console.log(CLIENTS)
   })
-  ws.onclose = (event) => {
-    console.log('close connection');
-    
-    var code = event.code;
-  var reason = event.reason;
-  var wasClean = event.wasClean;
-  console.log(code);
-    console.log(reason);
-    console.log(wasClean)
-  }
-  ws.on('close', function incoming(message) {
-      console.log(message);
   
-    });
-
 });
 
 app.get('/', (req, res) => res.send('Hello World!'))
