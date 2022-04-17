@@ -37,13 +37,8 @@ wss.on('connection', function connection(ws) {
         id:obj.id
       }
       CLIENTS.push(temp)
-    }else{
-      if(obj.device == 'machine'){
-      let machine
-      }else if(obj.device === 'phone'){
-        
-      }
     }
+    check_in(obj,CLIENTS,ws);
     all_machine(obj,CLIENTS,ws);
     access(obj,ws)
     new_access(obj,ws)
@@ -63,14 +58,25 @@ wss.on('connection', function connection(ws) {
   })
   
 });
-
+//登陸裝置
+function check_in(obj,CLIENTS,ws){
+  if(obj.check_in == true){
+    let temp ={
+      ws:ws,
+      device:obj.device,
+      id:obj.id
+    }
+    CLIENTS.push(temp)
+  }
+}
+//確認扣除手機後連線中的機器
 function all_machine(obj,CLIENTS,ws){
   if(obj.all_machine == true){
     ws.send(CLIENTS.length);
     console.log('all_machine'+CLIENTS.length-1)
-
   }
 }
+//手機帳號登陸
 function access(obj,ws){
   if(obj.access == true){
     con.query("SELECT * FROM access", function (err, result, fields) {
@@ -86,6 +92,7 @@ function access(obj,ws){
     });
   }
 }
+//新增手機帳號
 function new_access(obj,ws){
   if(obj.new_access == true){
     con.query("SELECT * FROM access", function (err, result, fields) {
