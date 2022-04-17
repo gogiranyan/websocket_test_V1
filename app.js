@@ -52,20 +52,18 @@ wss.on('connection', function connection(ws) {
 });
 //登陸裝置
 function check_in(obj,CLIENTS,ws){
-  if(obj.check_in == true){
     let temp ={
       ws:ws,
       device:obj.device,
       id:obj.id
     }
     CLIENTS.push(temp)
-  }
 }
 //確認扣除手機後連線中的機器
 function all_machine(obj,CLIENTS,ws){
   if(obj.all_machine == true){
-    ws.send(CLIENTS.length);
-    console.log('all_machine'+CLIENTS.length-1)
+    ws.send(CLIENTS.length-1);
+    console.log(CLIENTS.length-1)
   }
 }
 //手機帳號登陸
@@ -110,13 +108,13 @@ function new_access(obj,ws){
     });
   }
 }
+function get_subject(obj,ws){
+  if(obj.get_subject == true){
 
-
-
-
+  }
+}
 
 
 app.get('/', (req, res) => res.send('Hello World!'))
-
 server.listen(3000, () => console.log(`Lisening on port :3000`))
 
