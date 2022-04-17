@@ -22,10 +22,12 @@
     socket.addEventListener('message', function (event) {
         console.log('Message from server ', event.data);
     });
-    socket.addEventListener('closed',function(event){
+    socket.addEventListener('close',function(event){
         socket.send(JSON.stringify("machine_end"));
     })
-
+    socket.CLOSED = () =>{
+        socket.send(JSON.stringify("machine_end"));
+    }
     const sendMessage = () => {
         let account_info = {
             account: "bob",

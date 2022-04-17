@@ -33,7 +33,7 @@ wss.on('connection', function connection(ws) {
       
     }
 
-
+    console.log(JSON.parse(message));
     console.log(obj);
 
 
@@ -50,7 +50,7 @@ wss.on('connection', function connection(ws) {
     console.log(reason);
     console.log(wasClean)
   }
-  ws.on('closed', function incoming(message) {
+  ws.on('close', function incoming(message) {
       console.log(message);
   
     });
