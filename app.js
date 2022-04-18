@@ -36,6 +36,7 @@ wss.on('connection', function connection(ws) {
     access(obj,ws)
     new_access(obj,ws)
     get_subject(obj,ws)
+    chang_subject(obj,ws)
 
   });
 //裝置關閉後splice CLIENTS
@@ -110,17 +111,36 @@ function new_access(obj,ws){
     });
   }
 }
+//取得主題
 function get_subject(obj,ws){
-  let buffer
   if(obj.get_subject == true){
       let sql = "SELECT * FROM subject";
-      
+      let i =0
       con.query(sql,function(err,result){
         if (err) throw err;
-        buffer = JSON.stringify(result)
-        // console.log(JSON.stringify(result))
+        ws.send(JSON.stringify(result))
       });
-      console.log(buffer);
+      
+  }
+}
+//更改主題
+function chang_subject(obj,ws){
+  if(obj.chang_subject == true){
+    if(obj.insert == true){
+      var sql = "INSERT INTO subject (subject, level,en,ch) VALUES ('"+obj.subject+"','"+ obj.level+"','"+obj.en+"','"+obj.ch+"')";
+      con.query(sql,function(err){
+        if (err) throw err;
+        console.log("insert success!");
+        ws.send("insert success!");
+      });
+   }else if(obj.update == true){
+    var sql = "UPDATE subject SET en = '"+ obj.en +"', ch = '"+ obj.ch +"', level = '"+ obj.level +"', subject = '"+ obj.subject +"' WHERE id = '"+obj.id+"'";
+    con.query(sql, function (err) {
+      if (err) throw err;
+      console.log("update success!");
+      ws.send("update success!");
+    });
+   }
   }
 }
 
