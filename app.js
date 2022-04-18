@@ -146,8 +146,13 @@ function chang_subject(obj,ws){
 
 function game_start(obj,ws){
   if(obj.game_start ==true){
-    var sql = "INSERT INTO pleying_list (subject, round ,time,unix_time,play_output,play_input,play_model) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"')";
+    var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"')";
     console.log(sql)
+    con.query(sql, function (err) {
+      if (err) throw err;
+      console.log("insert success!");
+      ws.send("insert success!");
+    });
     
     
   }
