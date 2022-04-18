@@ -37,6 +37,7 @@ wss.on('connection', function connection(ws) {
     new_access(obj,ws)
     get_subject(obj,ws)
     chang_subject(obj,ws)
+    game_start(obj,ws)
 
   });
 //裝置關閉後splice CLIENTS
@@ -120,7 +121,6 @@ function get_subject(obj,ws){
         if (err) throw err;
         ws.send(JSON.stringify(result))
       });
-      
   }
 }
 //更改主題
@@ -144,6 +144,14 @@ function chang_subject(obj,ws){
   }
 }
 
+function game_start(obj,ws){
+  if(obj.game_start ==true){
+    var sql = "INSERT INTO pleying_list (subject, round ,time,unix_time,play_output,play_input,play_model) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"')";
+    console.log(sql)
+    
+    
+  }
+}
 
 
 
