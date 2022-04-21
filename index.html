@@ -11,12 +11,12 @@
 </body>
 <script>
     // Create WebSocket connection.
-    const socket = new WebSocket('ws://localhost:3000');
+    const socket = new WebSocket('ws://192.168.0.151:3000');
     // Connection opened
     socket.addEventListener('open', function (event) {
         console.log('Connected to WS Server')
         socket.send(JSON.stringify({
-            all_machine:true,
+            all_machine :true,
             account:"bob2",
             password:"bobp1"
         }))

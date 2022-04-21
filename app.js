@@ -39,6 +39,12 @@ wss.on('connection', function connection(ws) {
     chang_subject(obj,ws)
     game_start(obj,ws)
 
+    let clients = wss.clients  //取得所有連接中的 client
+    clients.forEach(client => {
+         client.send("ininder")  // 發送至每個 client
+         
+    })
+    console.log(CLIENTS.length);
   });
 //裝置關閉後splice CLIENTS
   ws.addEventListener('close', function(event) {
@@ -52,16 +58,19 @@ wss.on('connection', function connection(ws) {
     })
     i = 0
   })
-  
 });
 //登陸裝置
 function check_in(obj,CLIENTS,ws){
+  
+  if(obj.check_in == true){
     let temp ={
       ws:ws,
       device:obj.device,
       id:obj.id
     }
     CLIENTS.push(temp)
+  }
+    
 }
 //確認扣除手機後連線中的機器
 function all_machine(obj,CLIENTS,ws){
@@ -116,7 +125,6 @@ function new_access(obj,ws){
 function get_subject(obj,ws){
   if(obj.get_subject == true){
       let sql = "SELECT * FROM subject";
-      let i =0
       con.query(sql,function(err,result){
         if (err) throw err;
         ws.send(JSON.stringify(result))
@@ -146,19 +154,39 @@ function chang_subject(obj,ws){
 
 function game_start(obj,ws){
   if(obj.game_start ==true){
-    var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"')";
-    console.log(sql)
-    con.query(sql, function (err) {
-      if (err) throw err;
-      console.log("insert success!");
-      ws.send("insert success!");
-    });
+    // var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"')";
+    // console.log(sql)
+    // con.query(sql, function (err) {
+    //   if (err) throw err;
+    //   console.log("insert success!");
+    //   ws.send("insert success!");
+    // });
+
+
+  
+    function get_info(callback){
+      let sql = "SELECT * FROM subject";
+      con.query(sql,function(err,result){
+            if (err) throw err;
+            return callback(JSON.stringify(result)) 
+          });
+    } 
+
+    get_info(function(result){
+      x.push(result)
+
+    })
+    console.log(x[0])
+
+    if(obj.play_model == "time"){
+     
     
     
+    }else if(obj.play_model == "pk"){
+
+    }
   }
 }
-
-
 
 
 app.get('/', (req, res) => res.send('Hello World!'))
