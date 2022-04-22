@@ -7,6 +7,8 @@ const mysql = require('mysql');
 const { Socket } = require('dgram');
 const url = require('url');
 const { clone } = require('nodemon/lib/utils');
+const { contentDisposition } = require('express/lib/utils');
+const res = require('express/lib/response');
 
 //connect mysql---------------
 var con = mysql.createConnection({
@@ -20,6 +22,7 @@ con.connect(function(err) {
   if (err) throw err;
   console.log("Server is Connected!");
 });
+var game_round =0;
 //websocket server
 const wss = new WebSocket.Server({ server:server });
 let CLIENTS = []
@@ -37,7 +40,10 @@ wss.on('connection', function connection(ws) {
     new_access(obj,ws)
     get_subject(obj,ws)
     chang_subject(obj,ws)
-    game_start(obj,ws)
+    game_start(obj,ws,wss)
+    game_info_to_machine(obj,wss)
+
+
 
     let clients = wss.clients  //取得所有連接中的 client
     clients.forEach(client => {
@@ -152,42 +158,66 @@ function chang_subject(obj,ws){
   }
 }
 
-function game_start(obj,ws){
+function game_start(obj,ws,wss){
   if(obj.game_start ==true){
-    // var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"')";
-    // console.log(sql)
-    // con.query(sql, function (err) {
-    //   if (err) throw err;
-    //   console.log("insert success!");
-    //   ws.send("insert success!");
-    // });
-
-
-  
-    function get_info(callback){
-      let sql = "SELECT * FROM subject";
-      con.query(sql,function(err,result){
-            if (err) throw err;
-            return callback(JSON.stringify(result)) 
-          });
-    } 
-
-    get_info(function(result){
-      x.push(result)
-
-    })
-    console.log(x[0])
-
-    if(obj.play_model == "time"){
-     
-    
-    
-    }else if(obj.play_model == "pk"){
-
+    if(obj.play_output == 0 && obj.play_input ==0){
+      ws.send("error using sound and mic")
+    }else{
+      var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model,finish) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"',0)";
+      console.log(sql)
+      con.query(sql, function (err) {
+        if (err) throw err;
+        console.log("insert success!");
+        ws.send("insert success!");
+        let clients = wss.clients  //取得所有連接中的 client
+        clients.forEach(client => {
+          client.send("game_is_star")  // 發送至每個 client
+        })
+      });
     }
   }
 }
 
+
+function game_info_to_machine(obj,wss){
+  if(obj.game_info_to_machine == true){
+    function get_subjec_info(callback){
+      let sql = "SELECT * FROM subject";
+      con.query(sql,function(err,result){
+        if (err) throw err;
+        return callback(JSON.stringify(result)) 
+      });
+    }
+    get_subjec_info(function(result_s){
+      console.log(result_s)
+      let sql = "SELECT * FROM playing_list";
+      con.query(sql,function(err,result){
+        if (err) throw err;
+        console.log(result_s)
+        let result_l =JSON.stringify(result);
+        let r =JSON.parse(result_l)
+
+        console.log(r[1].round)
+        console.log(r)
+
+
+
+
+
+
+      });
+     
+      if(game_round < obj.game_round){
+        let clients = wss.clients  //取得所有連接中的 client
+        clients.forEach(client => {
+          client.send(result)  // 發送至每個 client
+        })
+      }
+    })
+  }
+    
+
+}
 
 app.get('/', (req, res) => res.send('Hello World!'))
 server.listen(3000, () => console.log(`Lisening on port :3000`))
