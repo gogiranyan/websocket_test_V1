@@ -168,7 +168,7 @@ function game_start(obj,ws,wss){
       console.log(sql)
       con.query(sql, function (err) {
         if (err) throw err;
-        console.log("insert success!");
+         console.log("insert success!");
         ws.send("insert success!");
         let clients = wss.clients  //取得所有連接中的 client
         clients.forEach(client => {
@@ -197,13 +197,6 @@ function game_info_to_machine(obj,wss){
         console.log(result_s)
         let result_l =JSON.stringify(result);
         let row =JSON.parse(result_l)
-
-        console.log(row[1].round)
-        console.log(r)
-
-
-
-
 
 
       });
