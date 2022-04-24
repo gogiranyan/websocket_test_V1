@@ -199,12 +199,15 @@ function game_info_to_machine(obj,wss,ws){
           
           game_round++
           let clients = wss.clients  //取得所有連接中的 client
-          let temp ={
+
+            let temp ={
             ws:ws,
             device:"machin",
             id:"20"
           }
           CLIENTS.push(temp)
+          ws.s(CLIENTS.length)
+          console.log(CLIENTS.length)
           console.log(CLIENTS)
           let data ={
             subject : obj.subject,
@@ -212,19 +215,24 @@ function game_info_to_machine(obj,wss,ws){
             time : obj.time,
             play_output : obj.play_output,
             play_input : obj.play_input,
-            play_model : obj.play_model
-
+            play_model : obj.play_model,
+            finish : 0
           }
           clients.forEach(client => {
-            
-          client.send("game_is_star")  // 發送至每個 client
+          client.send(JSON.stringify(data))  // 發送至每個 client
         })
 
           
+        }else{
+          let clients = wss.clients  //取得所有連接中的 client
+          game_round =0;
+          let data ={
+            finish : 1
+          }
+          clients.forEach(client => {
+          client.send(JSON.stringify(data))  // 發送至每個 client
+          })
         }
-
-
-
 
       });
      
