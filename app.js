@@ -41,7 +41,7 @@ wss.on('connection', function connection(ws) {
     get_subject(obj,ws)
     chang_subject(obj,ws)
     game_start(obj,ws,wss)
-    game_info_to_machine(obj,wss)
+    game_info_to_machine(obj,wss,ws)
 
 
 
@@ -178,9 +178,7 @@ function game_start(obj,ws,wss){
     }
   }
 }
-
-
-function game_info_to_machine(obj,wss){
+function game_info_to_machine(obj,wss,ws){
   if(obj.game_info_to_machine == true){
     function get_subjec_info(callback){
       let sql = "SELECT * FROM subject";
@@ -188,7 +186,7 @@ function game_info_to_machine(obj,wss){
         if (err) throw err;
         return callback(JSON.stringify(result)) 
       });
-    }
+    }     
     get_subjec_info(function(result_s){
       console.log(result_s)
       let sql = "SELECT * FROM playing_list";
@@ -197,6 +195,35 @@ function game_info_to_machine(obj,wss){
         console.log(result_s)
         let result_l =JSON.stringify(result);
         let row =JSON.parse(result_l)
+        if(game_round < row[0].round){
+          
+          game_round++
+          let clients = wss.clients  //取得所有連接中的 client
+          let temp ={
+            ws:ws,
+            device:"machin",
+            id:"20"
+          }
+          CLIENTS.push(temp)
+          console.log(CLIENTS)
+          let data ={
+            subject : obj.subject,
+            round : game_round,
+            time : obj.time,
+            play_output : obj.play_output,
+            play_input : obj.play_input,
+            play_model : obj.play_model
+
+          }
+          clients.forEach(client => {
+            
+          client.send("game_is_star")  // 發送至每個 client
+        })
+
+          
+        }
+
+
 
 
       });
@@ -209,8 +236,6 @@ function game_info_to_machine(obj,wss){
       }
     })
   }
-    
-
 }
 
 app.get('/', (req, res) => res.send('Hello World!'))
