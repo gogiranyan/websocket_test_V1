@@ -157,13 +157,14 @@ function chang_subject(obj,ws){
    }
   }
 }
-
+//手機傳送info給server
 function game_start(obj,ws,wss){
   if(obj.game_start ==true){
     if(obj.play_output == 0 && obj.play_input ==0){
       ws.send("error using sound and mic")
     }else{
-      var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model,finish) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"',0)";
+      // var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model,finish) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"',0)";
+      var sql = "UPDATE playing_list SET subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"',finish= "+ obj.finish +" WHERE id = '1'";
       console.log(sql)
       con.query(sql, function (err) {
         if (err) throw err;
@@ -195,9 +196,9 @@ function game_info_to_machine(obj,wss){
         if (err) throw err;
         console.log(result_s)
         let result_l =JSON.stringify(result);
-        let r =JSON.parse(result_l)
+        let row =JSON.parse(result_l)
 
-        console.log(r[1].round)
+        console.log(row[1].round)
         console.log(r)
 
 
