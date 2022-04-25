@@ -195,33 +195,76 @@ function game_info_to_machine(obj,wss,ws){
         console.log(result_s)
         let result_l =JSON.stringify(result);
         let row =JSON.parse(result_l)
-        if(game_round < row[0].round){
-          
+        if(game_round < row[0].round){//round
+          //test
           game_round++
-          let clients = wss.clients  //取得所有連接中的 client
-
             let temp ={
-            ws:ws,
-            device:"machin",
-            id:"20"
-          }
-          CLIENTS.push(temp)
-          ws.s(CLIENTS.length)
-          console.log(CLIENTS.length)
-          console.log(CLIENTS)
-          let data ={
-            subject : obj.subject,
-            round : game_round,
-            time : obj.time,
-            play_output : obj.play_output,
-            play_input : obj.play_input,
-            play_model : obj.play_model,
-            finish : 0
-          }
-          clients.forEach(client => {
-          client.send(JSON.stringify(data))  // 發送至每個 client
-        })
+              ws:ws,
+              device:"machin",
+              id:"20"
+            }
+            CLIENTS.push(temp)
+            //
+            ws.send(CLIENTS.length)
+            if(obj.play_model == 0){
+              let data ={
+                subject : obj.subject,
+                switch : 1,
+                round : game_round,
+                time : obj.time,
+                play_output : obj.play_output,
+                play_input : obj.play_input,
+                play_model : obj.play_model,
+                finish : 0
+              }
+              let clients = wss.clients  //取得所有連接中的 client
+              clients.forEach(client => {
+                client.send(JSON.stringify(data))  // 發送至每個 client
+              })
 
+            }else if(obj.play_model == 1){
+              let i = CLIENTS.length/obj.round
+                console.log("i = : ",i)
+              CLIENTS.forEach(clients => {
+                
+                
+
+                if(ws.CLIENTS.length !=0){
+
+
+                  let data ={
+                    subject : obj.subject,
+                    switch : 1,
+                    round : game_round,
+                    time : obj.time,
+                    play_output : obj.play_output,
+                    play_input : obj.play_input,
+                    play_model : obj.play_model,
+                    finish : 0
+                  }
+                  
+                });
+              }
+              let data ={
+                subject : obj.subject,
+                switch : 1,
+                round : game_round,
+                time : obj.time,
+                play_output : obj.play_output,
+                play_input : obj.play_input,
+                play_model : obj.play_model,
+                finish : 0
+              }
+              let clients = wss.clients  //取得所有連接中的 client
+              clients.forEach(client => {
+                client.send(JSON.stringify(data))  // 發送至每個 client
+              })
+
+
+            }
+
+
+          
           
         }else{
           let clients = wss.clients  //取得所有連接中的 client
@@ -248,4 +291,3 @@ function game_info_to_machine(obj,wss,ws){
 
 app.get('/', (req, res) => res.send('Hello World!'))
 server.listen(3000, () => console.log(`Lisening on port :3000`))
-
