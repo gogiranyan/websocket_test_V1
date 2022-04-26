@@ -223,11 +223,10 @@ function game_info_to_machine(obj,wss,ws){
               })
 
             }else if(obj.play_model == 1){
-              let i = CLIENTS.length/obj.round
-                console.log("i = : ",i)
+              
               CLIENTS.forEach(clients => {
-                
-                
+                let i = CLIENTS.length
+                if(i/obj.round == 0)
 
                 if(ws.CLIENTS.length !=0){
 
