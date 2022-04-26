@@ -181,7 +181,7 @@ function game_start(obj,ws,wss){
 function game_info_to_machine(obj,wss,ws){
   if(obj.game_info_to_machine == true){
     function get_subjec_info(callback){
-      let sql = "SELECT * FROM subject";
+      let sql = "SELECT * FROM subject where subject ='" + obj.subject+"'";
       con.query(sql,function(err,result){
         if (err) throw err;
         return callback(JSON.stringify(result)) 
@@ -223,15 +223,20 @@ function game_info_to_machine(obj,wss,ws){
               })
 
             }else if(obj.play_model == 1){
-              
+              let i = obj.round/CLIENTS.length
+              for(let g =0;g<i;g++){
+                
+              }
+              console.log("i = : ",i)
+              console.log("obj.round = : ",obj.round)
+              console.log(CLIENTS.length)
+
               CLIENTS.forEach(clients => {
-                let i = CLIENTS.length
-                if(i/obj.round == 0)
+                
+                if(CLIENTS.length != 0){
+                  
 
-                if(ws.CLIENTS.length !=0){
-
-
-                  let data ={
+                  let data = {
                     subject : obj.subject,
                     switch : 1,
                     round : game_round,
@@ -242,8 +247,8 @@ function game_info_to_machine(obj,wss,ws){
                     finish : 0
                   }
                   
-                });
-              }
+                };
+              })
               let data ={
                 subject : obj.subject,
                 switch : 1,
