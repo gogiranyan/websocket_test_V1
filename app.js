@@ -26,6 +26,7 @@ var game_round =0;
 //websocket server
 const wss = new WebSocket.Server({ server:server });
 let CLIENTS = []
+let pk_random =[]
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
@@ -176,8 +177,22 @@ function game_start(obj,ws,wss){
         })
       });
     }
+    if(obj.play_model == 1){
+      for(i = 0;i<CLIENTS.length;i++){
+        let temp =[]
+        for(k=0;k<CLIENTS.length;k++){
+          temp.push(k);
+        }
+        shuffle(temp);
+        for(k=0;k<CLIENTS.length;k++){
+          pk_random.push(temp.pop)
+        }
+        
+      }
+    }    
   }
 }
+var subject_temp = 0;
 function game_info_to_machine(obj,wss,ws){
   if(obj.game_info_to_machine == true){
     function get_subjec_info(callback){
@@ -188,13 +203,16 @@ function game_info_to_machine(obj,wss,ws){
       });
     }     
     get_subjec_info(function(result_s){
+      let result_subject = JSON.parse(result_s)
+
       console.log(result_s)
+      console.log(result_s.length)
       let sql = "SELECT * FROM playing_list";
       con.query(sql,function(err,result){
         if (err) throw err;
         console.log(result_s)
-        let result_l =JSON.stringify(result);
-        let row =JSON.parse(result_l)
+        let result_list =JSON.stringify(result);
+        let row =JSON.parse(result_list)
         if(game_round < row[0].round){//round
           //test
           game_round++
@@ -206,23 +224,27 @@ function game_info_to_machine(obj,wss,ws){
             CLIENTS.push(temp)
             //
             ws.send(CLIENTS.length)
-            if(obj.play_model == 0){
-              let data ={
-                subject : obj.subject,
-                switch : 1,
-                round : game_round,
-                time : obj.time,
-                play_output : obj.play_output,
-                play_input : obj.play_input,
-                play_model : obj.play_model,
-                finish : 0
-              }
-              let clients = wss.clients  //取得所有連接中的 client
-              clients.forEach(client => {
-                client.send(JSON.stringify(data))  // 發送至每個 client
-              })
+            if(obj.play_model == 0){//moodle = 0
+              let random_subject = getRandomInt(result_subject.length)
+              console.log("radoms"+random_subject)
+                let data ={
+                  subject : obj.subject,
+                  switch : 1,
+                  round : game_round,
+                  time : obj.time,
+                  en : result_subject[random_subject].en,
+                  play_output : obj.play_output,
+                  play_input : obj.play_input,
+                  play_model : obj.play_model,
+                  finish : 0
+                }
+                let clients = wss.clients  //取得所有連接中的 client
+                clients.forEach(client => {
+                  client.send(JSON.stringify(data))  // 發送至每個 client
+                })
+              
 
-            }else if(obj.play_model == 1){
+            }else if(obj.play_model == 1){//model =1
               let i = obj.round/CLIENTS.length
               for(let g =0;g<i;g++){
                 
@@ -291,7 +313,17 @@ function game_info_to_machine(obj,wss,ws){
       }
     })
   }
+  function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
 }
 
+//增加學校與
 app.get('/', (req, res) => res.send('Hello World!'))
 server.listen(3000, () => console.log(`Lisening on port :3000`))
