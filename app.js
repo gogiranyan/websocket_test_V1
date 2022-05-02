@@ -263,7 +263,8 @@ function game_info_to_machine(obj,wss,ws){
                     finish : 0
                   }
                 };
-              })
+              }) 
+              
               let data ={
                 subject : obj.subject,
                 switch : 1,
