@@ -244,41 +244,23 @@ function game_info_to_machine(obj,wss,ws){
                   client.send(JSON.stringify(data))  // 發送至每個 client
                 })
             }else if(obj.play_model == 1){//model =1
-              let i = obj.round/CLIENTS.length
-              for(let g =0;g<i;g++){
-              }
               console.log("i = : ",i)
               console.log("obj.round = : ",obj.round)
               console.log(CLIENTS.length)
-              CLIENTS.forEach(clients => {
-                if(CLIENTS.length != 0){
-                  let data = {
-                    subject : obj.subject,
-                    switch : 1,
-                    round : game_round,
-                    time : obj.time,
-                    play_output : obj.play_output,
-                    play_input : obj.play_input,
-                    play_model : obj.play_model,
-                    finish : 0
-                  }
-                };
-              }) 
-              
               let data ={
                 subject : obj.subject,
                 switch : 1,
                 round : game_round,
                 time : obj.time,
+                en : result_subject[random_subject].en,
                 play_output : obj.play_output,
                 play_input : obj.play_input,
                 play_model : obj.play_model,
                 finish : 0
               }
               let clients = wss.clients  //取得所有連接中的 client
-              clients.forEach(client => {
-                client.send(JSON.stringify(data))  // 發送至每個 client
-              })
+              clients[pk_random[game_round]]
+              
             }
         }else{
           let clients = wss.clients  //取得所有連接中的 client
