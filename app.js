@@ -176,19 +176,20 @@ function game_start(obj,ws,wss){
           client.send("game_is_star")  // 發送至每個 client
         })
       });
-    }
+    }//creat random
     if(obj.play_model == 1){
-      for(i = 0;i<CLIENTS.length;i++){
+      // let round = obj.round/CLIENTS.length
+      for(i = 0;i<obj.round;i++){
         let temp =[]
         for(k=0;k<CLIENTS.length;k++){
           temp.push(k);
         }
         shuffle(temp);
         for(k=0;k<CLIENTS.length;k++){
-          pk_random.push(temp.pop)
+          pk_random.push(temp[k])
         }
-        
       }
+      console.log("random_round" + JSON.stringify(pk_random))
     }    
   }
 }
@@ -242,22 +243,15 @@ function game_info_to_machine(obj,wss,ws){
                 clients.forEach(client => {
                   client.send(JSON.stringify(data))  // 發送至每個 client
                 })
-              
-
             }else if(obj.play_model == 1){//model =1
               let i = obj.round/CLIENTS.length
               for(let g =0;g<i;g++){
-                
               }
               console.log("i = : ",i)
               console.log("obj.round = : ",obj.round)
               console.log(CLIENTS.length)
-
               CLIENTS.forEach(clients => {
-                
                 if(CLIENTS.length != 0){
-                  
-
                   let data = {
                     subject : obj.subject,
                     switch : 1,
@@ -268,7 +262,6 @@ function game_info_to_machine(obj,wss,ws){
                     play_model : obj.play_model,
                     finish : 0
                   }
-                  
                 };
               })
               let data ={
@@ -285,13 +278,7 @@ function game_info_to_machine(obj,wss,ws){
               clients.forEach(client => {
                 client.send(JSON.stringify(data))  // 發送至每個 client
               })
-
-
             }
-
-
-          
-          
         }else{
           let clients = wss.clients  //取得所有連接中的 client
           game_round =0;
@@ -316,11 +303,11 @@ function game_info_to_machine(obj,wss,ws){
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
   }
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      let j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
+}
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
 }
 
