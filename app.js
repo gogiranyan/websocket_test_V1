@@ -178,10 +178,13 @@ function game_start(obj,ws,wss){
       });
     }//creat random
     if(obj.play_model == 1){
-      // let round = obj.round/CLIENTS.length
+      let round = obj.round/CLIENTS.length
+      console.log(round)
+      console.log(obj.round)
+      console.log(CLIENTS.length)
       // let cl_length = CLIENTS.length
       let cl_length = CLIENTS.length
-      for(i = 0;i<obj.round;i++){
+      for(i = 0;i<round;i++){
         let temp =[]
         for(k=0;k<cl_length;k++){
           temp.push(k);
@@ -192,6 +195,7 @@ function game_start(obj,ws,wss){
         }
       }
       console.log("random_round" + JSON.stringify(pk_random))
+      console.log("random_round" + CLIENTS.length)
     }    
   }
 }
@@ -258,14 +262,12 @@ function game_info_to_machine(obj,wss,ws){
                 play_model : obj.play_model,
                 finish : 0
               }
-              let clients = CLIENTS //取得所有連接中的 client
-              console.log(clients.length)
-              clients[pk_random[game_round]].ws.send(data)
-              // if(CLIENTS.length > 2){
-              //   let clients = CLIENTS[CLIENTS.length-1].ws //取得所有連接中的 client
-              // clients.send("s")
-              // }
-              // // clients[pk_random[game_round]].send(data);
+              // let clients = CLIENTS[pk_random[game_round]].ws//取得所有連接中的 client
+              let clients = CLIENTS[0].ws//取得所有連接中的 client
+              clients.send(JSON.stringify(data))
+              console.log(JSON.stringify(data))
+              console.log("client.lenth: "+CLIENTS.length)
+
             }
         }else{
           let clients = wss.clients  //取得所有連接中的 client
