@@ -179,13 +179,15 @@ function game_start(obj,ws,wss){
     }//creat random
     if(obj.play_model == 1){
       // let round = obj.round/CLIENTS.length
+      // let cl_length = CLIENTS.length
+      let cl_length = CLIENTS.length
       for(i = 0;i<obj.round;i++){
         let temp =[]
-        for(k=0;k<CLIENTS.length;k++){
+        for(k=0;k<cl_length;k++){
           temp.push(k);
         }
         shuffle(temp);
-        for(k=0;k<CLIENTS.length;k++){
+        for(k=0;k<cl_length;k++){
           pk_random.push(temp[k])
         }
       }
@@ -193,7 +195,6 @@ function game_start(obj,ws,wss){
     }    
   }
 }
-var subject_temp = 0;
 function game_info_to_machine(obj,wss,ws){
   if(obj.game_info_to_machine == true){
     function get_subjec_info(callback){
@@ -205,7 +206,6 @@ function game_info_to_machine(obj,wss,ws){
     }     
     get_subjec_info(function(result_s){
       let result_subject = JSON.parse(result_s)
-
       console.log(result_s)
       console.log(result_s.length)
       let sql = "SELECT * FROM playing_list";
@@ -215,7 +215,8 @@ function game_info_to_machine(obj,wss,ws){
         let result_list =JSON.stringify(result);
         let row =JSON.parse(result_list)
         if(game_round < row[0].round){//round
-          //test
+          //test=======
+          console.log("obj.round = : ",obj.round)
           game_round++
             let temp ={
               ws:ws,
@@ -223,10 +224,10 @@ function game_info_to_machine(obj,wss,ws){
               id:"20"
             }
             CLIENTS.push(temp)
-            //
+            //=========
             ws.send(CLIENTS.length)
-            if(obj.play_model == 0){//moodle = 0
-              let random_subject = getRandomInt(result_subject.length)
+            let random_subject = getRandomInt(result_subject.length)
+            if(obj.play_model == 0){//----moodle = 0
               console.log("radoms"+random_subject)
                 let data ={
                   subject : obj.subject,
@@ -243,8 +244,7 @@ function game_info_to_machine(obj,wss,ws){
                 clients.forEach(client => {
                   client.send(JSON.stringify(data))  // 發送至每個 client
                 })
-            }else if(obj.play_model == 1){//model =1
-              console.log("i = : ",i)
+            }else if(obj.play_model == 1){//----model =1
               console.log("obj.round = : ",obj.round)
               console.log(CLIENTS.length)
               let data ={
@@ -258,9 +258,14 @@ function game_info_to_machine(obj,wss,ws){
                 play_model : obj.play_model,
                 finish : 0
               }
-              let clients = wss.clients  //取得所有連接中的 client
-              clients[pk_random[game_round]]
-              
+              let clients = CLIENTS //取得所有連接中的 client
+              console.log(clients.length)
+              clients[pk_random[game_round]].ws.send(data)
+              // if(CLIENTS.length > 2){
+              //   let clients = CLIENTS[CLIENTS.length-1].ws //取得所有連接中的 client
+              // clients.send("s")
+              // }
+              // // clients[pk_random[game_round]].send(data);
             }
         }else{
           let clients = wss.clients  //取得所有連接中的 client
