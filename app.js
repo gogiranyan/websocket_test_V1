@@ -21,6 +21,7 @@ var con = mysql.createConnection({
 con.connect(function(err) {
   if (err) throw err;
   console.log("Server is Connected!");
+
 });
 var game_round =0;
 //websocket server
@@ -43,7 +44,7 @@ wss.on('connection', function connection(ws) {
     chang_subject(obj,ws)
     game_start(obj,ws,wss)
     game_info_to_machine(obj,wss,ws)
-
+    machin_info_to_server(obj,ws,wss)
 
 
     let clients = wss.clients  //取得所有連接中的 client
@@ -68,16 +69,14 @@ wss.on('connection', function connection(ws) {
 });
 //登陸裝置
 function check_in(obj,CLIENTS,ws){
-  
   if(obj.check_in == true){
     let temp ={
       ws:ws,
-      device:obj.device,
-      id:obj.id
+      device_id:obj.device_id,
+      device_round:0
     }
     CLIENTS.push(temp)
   }
-    
 }
 //確認扣除手機後連線中的機器
 function all_machine(obj,CLIENTS,ws){
@@ -245,6 +244,7 @@ function game_info_to_machine(obj,wss,ws){
                   finish : 0
                 }
                 let clients = wss.clients  //取得所有連接中的 client
+
                 clients.forEach(client => {
                   client.send(JSON.stringify(data))  // 發送至每個 client
                 })
@@ -294,10 +294,28 @@ function game_info_to_machine(obj,wss,ws){
     return Math.floor(Math.random() * max);
   }
 }
+
+
+
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function machin_info_to_server(obj,ws,wss){
+    if(obj.machin_info_to_server == true){
+    let data={
+      device: obj.device,
+      is_right:obj.right,
+      en_result:obj.en_result,
+      unix_time:obj.unix_time,
+      play_model:obj.play_model,
+      device_round:obj.device_round
+    }
+    console.log(CLIENTS.findIndex(e=>{return e.ws == ws}))
+
   }
 }
 
