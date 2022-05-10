@@ -52,7 +52,7 @@ wss.on('connection', function connection(ws) {
          client.send("ininder")  // 發送至每個 client
          
     })
-    console.log(CLIENTS.length);
+    console.log("CLIENTS: "+CLIENTS.length);
   });
 //裝置關閉後splice CLIENTS
   ws.addEventListener('close', function(event) {
@@ -314,11 +314,17 @@ function machin_info_to_server(obj,ws,wss){
       play_model:obj.play_model,
       device_round:obj.device_round
     }
-    console.log(CLIENTS.findIndex(e=>{return e.ws == ws}))
+    let temp={
+      ws:ws,
+      device_round:obj.device_round,
 
+    }
+    CLIENTS.push(temp)
+    console.log(CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round+=1)
+    console.log("array index: "+CLIENTS.findIndex(e=>{return e.ws == ws}))
   }
 }
 
-//增加學校與
+//增加學校與姓名
 app.get('/', (req, res) => res.send('Hello World!'))
 server.listen(3000, () => console.log(`Lisening on port :3000`))
