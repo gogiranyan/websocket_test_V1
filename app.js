@@ -314,6 +314,7 @@ function machin_info_to_server(obj,ws,wss){
       play_model:obj.play_model,
       device_round:obj.device_round
     }
+    
     let temp={
       ws:ws,
       device_round:obj.device_round,
