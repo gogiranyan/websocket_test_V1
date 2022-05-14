@@ -324,6 +324,7 @@ function machin_info_to_server(obj,ws,wss){
     console.log(CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round+=1)
     console.log("array index: "+CLIENTS.findIndex(e=>{return e.ws == ws}))
   }
+  
 }
 
 //增加學校與姓名
