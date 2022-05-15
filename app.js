@@ -312,6 +312,8 @@ function machin_info_to_server(obj,ws,wss){
       en_result:obj.en_result,
       unix_time:obj.unix_time,
       play_model:obj.play_model,
+      play_input:obj.play_input,
+      play_output:obj.play_output,
       device_round:obj.device_round
     }
     
