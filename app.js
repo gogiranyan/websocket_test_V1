@@ -321,6 +321,12 @@ function machin_info_to_server(obj,ws,wss){
       ws:ws,
       device_round:obj.device_round,
     }
+    let sql ="INSERT INTO access (device, is_right, en_result, unix_time, play_output, play_input, play_model,device_round) VALUES ('"+obj.device+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"')";
+    con.query(sql,function(err,result){
+      if(err)throw err;
+      console.log("update success!");
+    })
+    
     CLIENTS.push(temp)
     console.log(CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round+=1)
     console.log("array index: "+CLIENTS.findIndex(e=>{return e.ws == ws}))
