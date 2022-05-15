@@ -318,7 +318,6 @@ function machin_info_to_server(obj,ws,wss){
     let temp={
       ws:ws,
       device_round:obj.device_round,
-
     }
     CLIENTS.push(temp)
     console.log(CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round+=1)
