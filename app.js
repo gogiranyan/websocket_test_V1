@@ -361,16 +361,41 @@ function test_sql(){
 }
 function average_random(number,times){
   let round = times/number;
-  console.log(round)
   let random_round =[]
-  for (let i = 0; i < round; i++) {
-    let temp =[]
+  console.log(round)
+  if(round>0){
+    for(let i = round;i > 1;i--){
+      let temp =[]
+      for (let k = 0; k < number; k++) {
+        temp.push(k)
+      }
+      shuffle(temp)
+      for (let k = 0; k < number; k++) {
+        random_round.push(temp[k]);
+      }
+    }
+    let temp=[]
     for (let k = 0; k < number; k++) {
       temp.push(k)
     }
     shuffle(temp)
+    for(let i = 0;i<(times-number);i++){
+      random_round.push(temp[i])
+    }
+  }else if(round == 0){
+    let temp=[]
     for (let k = 0; k < number; k++) {
-      random_round.push(temp[k]);
+      random_round.push(k)
+    }
+    shuffle(random_round)
+  }else if(round<0){
+    let temp=[]
+    for (let k = 0; k < number; k++) {
+      temp.push(k)
+    }
+    shuffle(temp)
+    for(let i = 0;i<(times-number);i++){
+      random_round.push(temp[i])
     }
   }
   return random_round
