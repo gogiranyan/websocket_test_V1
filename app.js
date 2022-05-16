@@ -339,7 +339,7 @@ function get_history(obj,ws,wss){
   }
 }
 function test_sql(){
-  console.log("randmmmm: "+average_random(5,2))//number,rounds
+  console.log("randmmmm: "+average_random(3,3))//number,rounds
   function callback_playingList(callback){
     let sql = "SELECT * FROM playing_list WHERE id = 1";
     con.query(sql,function(err,result){
@@ -359,7 +359,7 @@ function test_sql(){
   })
 
 }
-function average_random(number,rounds){
+function average_random(number,rounds){//round =1
   let round = rounds/number;
   let random_round =[]
   console.log(round)
@@ -379,11 +379,10 @@ function average_random(number,rounds){
       temp.push(k)
     }
     shuffle(temp)
-    for(let i = 0;i<(times-number);i++){
+    for(let i = 0;i<(rounds-number);i++){
       random_round.push(temp[i])
     }
   }else if(round == 0){
-    let temp=[]
     for (let k = 0; k < number; k++) {
       random_round.push(k)
     }
@@ -394,7 +393,7 @@ function average_random(number,rounds){
       temp.push(k)
     }
     shuffle(temp)
-    for(let i = 0;i<(times-number);i++){
+    for(let i = 0;i<(rounds-number);i++){
       random_round.push(temp[i])
     }
   }
