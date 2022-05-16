@@ -308,6 +308,7 @@ function machin_info_to_server(obj,ws,wss){
     if(obj.machin_info_to_server == true){
     let data={
       device: obj.device,
+      subject: obj.subject,
       is_right:obj.right,
       en_result:obj.en_result,
       unix_time:obj.unix_time,
@@ -321,7 +322,7 @@ function machin_info_to_server(obj,ws,wss){
       ws:ws,
       device_round:obj.device_round,
     }
-    let sql ="INSERT INTO access (device, is_right, en_result, unix_time, play_output, play_input, play_model,device_round) VALUES ('"+obj.device+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"')";
+    let sql ="INSERT INTO history (device, subject, is_right, en_result, unix_time, play_output, play_input, play_model,device_round) VALUES ('"+obj.device+"','"+ obj.subject+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"')";
     con.query(sql,function(err,result){
       if(err)throw err;
       console.log("update success!");
@@ -333,7 +334,7 @@ function machin_info_to_server(obj,ws,wss){
   }
   
 }
-
+ 
 //增加學校與姓名
 app.get('/', (req, res) => res.send('Hello World!'))
 server.listen(3000, () => console.log(`Lisening on port :3000`))
