@@ -339,7 +339,7 @@ function get_history(obj,ws,wss){
   }
 }
 function test_sql(){
-  console.log("randmmmm: "+average_random(5,2))
+  console.log("randmmmm: "+average_random(5,2))//number,rounds
   function callback_playingList(callback){
     let sql = "SELECT * FROM playing_list WHERE id = 1";
     con.query(sql,function(err,result){
@@ -359,8 +359,8 @@ function test_sql(){
   })
 
 }
-function average_random(number,times){
-  let round = times/number;
+function average_random(number,rounds){
+  let round = rounds/number;
   let random_round =[]
   console.log(round)
   if(round>0){
