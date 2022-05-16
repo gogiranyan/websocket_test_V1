@@ -165,7 +165,7 @@ function game_start(obj,ws,wss){
       ws.send("error using sound and mic")
     }else{
       // var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model,finish) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"',0)";
-      var sql = "UPDATE playing_list SET subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"',finish= "+ obj.finish +" WHERE id = '1'";
+      var sql = "UPDATE playing_list SET level = '"+ obj.level +"', subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"',finish= "+ obj.finish +" WHERE id = '1'";
       console.log(sql)
       con.query(sql, function (err) {
         if (err) throw err;
@@ -339,26 +339,29 @@ function get_history(obj,ws,wss){
   }
 }
 function test_sql(){
-  // // let sql= "SELECT * FROM `subject` FULL JOIN `history`"
-  // let sql=  "SELECT subject, account FROM playing_list, access WHERE playing_list.id = 1";
-  // console.log(sql)
-
-  // con.query(sql,function(err,result){
-  //   if(err) throw err; 
-  //   console.log("result: "+JSON.stringify(result))
-  // })
-  let sql = "SELECT * FROM playing_list WHERE id = 1";
-  con.query(sql,function(err,presult){
-    let temp = JSON.stringify(presult)
-    let p_list = JSON.parse(temp)
-    console.log("p_list~: "+ temp )
-    if(err) throw err;
-    let sql = "SELECT * FROM subject";
+  function callback_playingList(callback){
+    let sql = "SELECT * FROM playing_list WHERE id = 1";
     con.query(sql,function(err,result){
-      if(err) throw err;
-      console.log("presult,id :"+ presult.id)
-    })
+      if (err) throw err;
+      return callback(JSON.stringify(result)) 
+    });
+  }
+  callback_playingList(function(result_playList){
+    let p_list = JSON.parse(result_playList)
+    let sql ="SELECT "
+
   })
+  // con.query(sql,function(err,presult){
+  //   let temp = JSON.stringify(presult)
+  //   let p_list = JSON.parse(temp)
+  //   console.log("p_list~: "+ temp )
+  //   if(err) throw err;
+  //   let sql = "SELECT * FROM subject";
+  //   con.query(sql,function(err,result){
+  //     if(err) throw err;
+  //     console.log("presult,id :"+ presult.id)
+  //   })
+  // })
 }
 function server_to_machine(){
   // let sql = "SELECT * FROM playing_list WHERE id = 1";
