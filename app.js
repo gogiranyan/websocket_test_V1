@@ -196,10 +196,10 @@ function game_start(obj,ws,wss){
       console.log("random_round" + JSON.stringify(pk_random))
       console.log("random_round" + CLIENTS.length)
     }    
+    game_info_to_machine()
   }
 }
 function game_info_to_machine(obj,wss,ws){
-  if(obj.game_info_to_machine == true){
     function get_subjec_info(callback){
       let sql = "SELECT * FROM subject where subject ='" + obj.subject+"'";
       con.query(sql,function(err,result){
@@ -289,7 +289,6 @@ function game_info_to_machine(obj,wss,ws){
         })
       }
     })
-  }
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
   }
