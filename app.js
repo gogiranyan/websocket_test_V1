@@ -328,14 +328,18 @@ function machin_info_to_server(obj,ws,wss){
       device:"101",
       device_round:obj.device_round,
     }
-    
     CLIENTS.push(temp)
     console.log(CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round+=1)
     console.log("deviec round:"+CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round)
     console.log("array index: "+CLIENTS.findIndex(e=>{return e.ws == ws}))
   }
-  
 }
+function get_history(obj,ws,wss){
+  if(obj.get_history == true){
+    let sql = "SELECT * FROM playing_list";
+  }
+}
+
  
 //增加學校與姓名
 app.get('/', (req, res) => res.send('Hello World!'))
