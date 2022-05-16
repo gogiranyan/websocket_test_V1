@@ -339,6 +339,7 @@ function get_history(obj,ws,wss){
   }
 }
 function test_sql(){
+  console.log("randmmmm: "+average_random(5,2))
   function callback_playingList(callback){
     let sql = "SELECT * FROM playing_list WHERE id = 1";
     con.query(sql,function(err,result){
@@ -348,21 +349,34 @@ function test_sql(){
   }
   callback_playingList(function(result_playList){
     let p_list = JSON.parse(result_playList)
-    let sql ="SELECT "
+    let sql ="SELECT * FROM subjcet";
+    con.pause(sql,function(err,result_subjct){
+      let data ={
+
+      }
+    })
 
   })
-  // con.query(sql,function(err,presult){
-  //   let temp = JSON.stringify(presult)
-  //   let p_list = JSON.parse(temp)
-  //   console.log("p_list~: "+ temp )
-  //   if(err) throw err;
-  //   let sql = "SELECT * FROM subject";
-  //   con.query(sql,function(err,result){
-  //     if(err) throw err;
-  //     console.log("presult,id :"+ presult.id)
-  //   })
-  // })
+
 }
+function average_random(number,times){
+  let round = times/number;
+  console.log(round)
+  let random_round =[]
+  for (let i = 0; i < round; i++) {
+    let temp =[]
+    for (let k = 0; k < number; k++) {
+      temp.push(k)
+    }
+    shuffle(temp)
+    for (let k = 0; k < number; k++) {
+      random_round.push(temp[k]);
+    }
+  }
+  return random_round
+}
+
+
 function server_to_machine(){
   // let sql = "SELECT * FROM playing_list WHERE id = 1";
   // con.query(sql,function(err,p_list){
