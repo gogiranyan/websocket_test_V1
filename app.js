@@ -45,7 +45,8 @@ wss.on('connection', function connection(ws) {
     game_start(obj,ws,wss)
     game_info_to_machine(obj,wss,ws)
     machin_info_to_server(obj,ws,wss)
-    test_sql()
+    // test_sql()
+    get_history(obj,ws,wss)
 
 
     let clients = wss.clients  //取得所有連接中的 client
@@ -315,9 +316,7 @@ function machin_info_to_server(obj,ws,wss){
 
         }
       }
-
-    
-    let sql ="INSERT INTO history (device, subject, is_right, en_result, unix_time, play_output, play_input, play_model,device_round) VALUES ('"+obj.device+"','"+ obj.subject+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"')";
+    let sql ="INSERT INTO history (device, subject, is_right, en_result, unix_time, play_output, play_input, play_model,device_round,playing_list_id) VALUES ('"+obj.device+"','"+ obj.subject+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"','1')";
     con.query(sql,function(err,result){
       if(err)throw err;
       console.log("update success!");
@@ -335,9 +334,16 @@ function machin_info_to_server(obj,ws,wss){
 }
 function get_history(obj,ws,wss){
   if(obj.get_history == true){
-    let sql = "SELECT * FROM playing_list";
+    let sql = "SELECT * FROM history WHERE playing_list_id = 1";
+    con.query(sql,function(err,result){
+      if(err) throw err;
+      console.log(JSON.stringify(result))
+
+    })
   }
 }
+
+
 function test_sql(){
   console.log("randmmmm: "+average_random(6,6))//number,rounds
   function callback_playingList(callback){
@@ -359,7 +365,7 @@ function test_sql(){
   })
 
 }
-function average_random(number,rounds){//round =1
+function average_random(number,rounds){//number,rounds
   let round = rounds/number;
   let random_round =[]
   console.log("round:"+round)
@@ -406,6 +412,7 @@ function average_random(number,rounds){//round =1
   }
   return random_round
 }
+
 
 
 function server_to_machine(){
