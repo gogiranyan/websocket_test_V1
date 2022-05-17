@@ -339,7 +339,7 @@ function get_history(obj,ws,wss){
   }
 }
 function test_sql(){
-  console.log("randmmmm: "+average_random(3,3))//number,rounds
+  console.log("randmmmm: "+average_random(6,6))//number,rounds
   function callback_playingList(callback){
     let sql = "SELECT * FROM playing_list WHERE id = 1";
     con.query(sql,function(err,result){
@@ -362,8 +362,9 @@ function test_sql(){
 function average_random(number,rounds){//round =1
   let round = rounds/number;
   let random_round =[]
-  console.log(round)
-  if(round>0){
+  console.log("round:"+round)
+  if(round>1 && round%1 != 0){
+    console.log("1.111")
     for(let i = round;i > 1;i--){
       let temp =[]
       for (let k = 0; k < number; k++) {
@@ -379,21 +380,27 @@ function average_random(number,rounds){//round =1
       temp.push(k)
     }
     shuffle(temp)
-    for(let i = 0;i<(rounds-number);i++){
+    for(let i = 0;i<(rounds-number*parseInt(round));i++){
       random_round.push(temp[i])
     }
-  }else if(round == 0){
-    for (let k = 0; k < number; k++) {
-      random_round.push(k)
+    shuffle(random_round)
+  }else if(round %1 === 0){
+    console.log("1.0")
+    for (let i = round; i > 0; i--) {
+      for (let k = 0; k < number; k++) {
+        random_round.push(k)
+      }
     }
     shuffle(random_round)
-  }else if(round<0){
+    console.log("ddd"+random_round)
+  }else if(round<1){
+    console.log("0.9")
     let temp=[]
     for (let k = 0; k < number; k++) {
       temp.push(k)
     }
     shuffle(temp)
-    for(let i = 0;i<(rounds-number);i++){
+    for(let i = 0;i<rounds;i++){
       random_round.push(temp[i])
     }
   }
