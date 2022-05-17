@@ -337,7 +337,7 @@ function get_history(obj,ws,wss){
     let sql = "SELECT * FROM history WHERE playing_list_id = 1";
     con.query(sql,function(err,result){
       if(err) throw err;
-      console.log(JSON.stringify(result))
+        
 
     })
   }
