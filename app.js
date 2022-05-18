@@ -26,8 +26,9 @@ con.connect(function(err) {
 var game_round =0;
 //websocket server
 const wss = new WebSocket.Server({ server:server });
-let CLIENTS = []
-let pk_random =[]
+let CLIENTS = [];
+let pk_random =[];
+let subject_ranom=[];
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
@@ -35,6 +36,17 @@ wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
     let obj = JSON.parse(message);
     console.log(obj)
+    //test=======
+    console.log("obj.round = : ",obj.round)
+    game_round++
+      let temp ={
+        ws:ws,
+        device:"machin",
+        id:"20"
+      }
+    CLIENTS.push(temp)
+    //=========
+
     
     check_in(obj,CLIENTS,ws);
     all_machine(obj,CLIENTS,ws);
@@ -166,8 +178,7 @@ function game_start(obj,ws,wss){
       ws.send("error using sound and mic")
     }else{
       // var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model,finish) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"',0)";
-      var sql = "UPDATE playing_list SET level = '"+ obj.level +"', subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"',finish= "+ obj.finish +" WHERE id = '1'";
-      console.log(sql)
+      var sql = "UPDATE playing_list SET level = '"+ obj.level +"', subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"',finish= '0' WHERE id = '1'";
       con.query(sql, function (err) {
         if (err) throw err;
          console.log("insert success!");
@@ -178,27 +189,11 @@ function game_start(obj,ws,wss){
         })
       });
     }//creat random
-    if(obj.play_model == 1){
-      let round = obj.round/CLIENTS.length
-      console.log(round)
-      console.log(obj.round)
-      console.log(CLIENTS.length)
-      // let cl_length = CLIENTS.length
-      let cl_length = CLIENTS.length
-      for(i = 0;i<round;i++){
-        let temp =[]
-        for(k=0;k<cl_length;k++){
-          temp.push(k);
-        }
-        shuffle(temp);
-        for(k=0;k<cl_length;k++){
-          pk_random.push(temp[k])
-        }
-      }
-      console.log("random_round" + JSON.stringify(pk_random))
-      console.log("random_round" + CLIENTS.length)
-    }    
-    game_info_to_machine()
+
+    pk_random = average_random(CLIENTS.length,obj.round)
+    pk_random = average_random(CLIENTS.length,obj.round)
+    console.log("pkrandom: "+pk_random)
+    // game_info_to_machine()
   }
 }
 function game_info_to_machine(obj,wss,ws){
@@ -220,16 +215,7 @@ function game_info_to_machine(obj,wss,ws){
         let result_list =JSON.stringify(result);
         let row =JSON.parse(result_list)
         if(game_round < row[0].round){//round
-          //test=======
-          console.log("obj.round = : ",obj.round)
-          game_round++
-            let temp ={
-              ws:ws,
-              device:"machin",
-              id:"20"
-            }
-            CLIENTS.push(temp)
-            //=========
+
             ws.send(CLIENTS.length)
             let random_subject = getRandomInt(result_subject.length)
             if(obj.play_model == 0){//----moodle = 0
@@ -368,9 +354,7 @@ function test_sql(){
 function average_random(number,rounds){//number,rounds
   let round = rounds/number;
   let random_round =[]
-  console.log("round:"+round)
   if(round>1 && round%1 != 0){
-    console.log("1.111")
     for(let i = round;i > 1;i--){
       let temp =[]
       for (let k = 0; k < number; k++) {
@@ -391,16 +375,13 @@ function average_random(number,rounds){//number,rounds
     }
     shuffle(random_round)
   }else if(round %1 === 0){
-    console.log("1.0")
     for (let i = round; i > 0; i--) {
       for (let k = 0; k < number; k++) {
         random_round.push(k)
       }
     }
     shuffle(random_round)
-    console.log("ddd"+random_round)
   }else if(round<1){
-    console.log("0.9")
     let temp=[]
     for (let k = 0; k < number; k++) {
       temp.push(k)
