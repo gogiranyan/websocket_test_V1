@@ -57,7 +57,7 @@ wss.on('connection', function connection(ws) {
     game_start(obj,ws,wss)
     game_info_to_machine(obj,wss,ws)
     machin_info_to_server(obj,ws,wss)
-    // test_sql()
+    test_sql()
     get_history(obj,ws,wss)
 
 
@@ -177,6 +177,7 @@ function game_start(obj,ws,wss){
     if(obj.play_output == 0 && obj.play_input ==0){
       ws.send("error using sound and mic")
     }else{
+
       // var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model,finish) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"',0)";
       var sql = "UPDATE playing_list SET level = '"+ obj.level +"', subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"',finish= '0' WHERE id = '1'";
       con.query(sql, function (err) {
@@ -196,6 +197,7 @@ function game_start(obj,ws,wss){
     // game_info_to_machine()
   }
 }
+
 function game_info_to_machine(obj,wss,ws){
     function get_subjec_info(callback){
       let sql = "SELECT * FROM subject where subject ='" + obj.subject+"'";
@@ -281,14 +283,14 @@ function game_info_to_machine(obj,wss,ws){
     return Math.floor(Math.random() * max);
   }
 }
-
+//洗牌
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
-
+//machine回傳資料
 function machin_info_to_server(obj,ws,wss){
     if(obj.machin_info_to_server == true){
       if(obj.play_model == 0){
@@ -341,11 +343,17 @@ function test_sql(){
   }
   callback_playingList(function(result_playList){
     let p_list = JSON.parse(result_playList)
-    let sql ="SELECT * FROM subjcet";
-    con.pause(sql,function(err,result_subjct){
-      let data ={
-
-      }
+    console.log("inplist: "+p_list[0].subject)
+    let sql ="SELECT * FROM subject WHERE subject = '"+p_list[0].subject+"'";
+    con.query(sql,function(err,result_subjct){
+      if(err) throw err;
+      console.log(JSON.stringify(result_subjct))
+      let data =JSON.stringify(average_random(result_subjct.length,p_list[0].round))
+      sql = "UPDATE playing_list SET random_subject = '"+data+"'"
+      con.query(sql,function(err,result){
+        if(err) throw err;
+        console.log("update random_subject success");
+      })
     })
 
   })
