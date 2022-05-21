@@ -177,21 +177,43 @@ function game_start(obj,ws,wss){
     if(obj.play_output == 0 && obj.play_input ==0){
       ws.send("error using sound and mic")
     }else{
-
       // var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model,finish) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"',0)";
       var sql = "UPDATE playing_list SET level = '"+ obj.level +"', subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"',finish= '0' WHERE id = '1'";
       con.query(sql, function (err) {
         if (err) throw err;
          console.log("insert success!");
         ws.send("insert success!");
+
         let clients = wss.clients  //取得所有連接中的 client
         clients.forEach(client => {
           client.send("game_is_star")  // 發送至每個 client
         })
       });
-    }//creat random
+    }//creat random in database
 
-    pk_random = average_random(CLIENTS.length,obj.round)
+    function callback_playingList(callback){
+      let sql = "SELECT * FROM playing_list WHERE id = 1";
+      con.query(sql,function(err,result){
+        if (err) throw err;
+        return callback(JSON.stringify(result)) 
+      });
+    }
+    callback_playingList(function(result_playList){
+      let p_list = JSON.parse(result_playList)
+      console.log("inplist: "+p_list[0].subject)
+      let sql ="SELECT * FROM subject WHERE subject = '"+p_list[0].subject+"'";
+      con.query(sql,function(err,result_subjct){
+        if(err) throw err;
+        console.log(JSON.stringify(result_subjct))
+        let data =JSON.stringify(average_random(result_subjct.length,p_list[0].round))
+        let datas
+        sql = "UPDATE playing_list SET random_subject = '"+data+"'"//++datas
+        con.query(sql,function(err,result){
+          if(err) throw err;
+          console.log("update random_subject success");
+        })
+      })
+    })
     pk_random = average_random(CLIENTS.length,obj.round)
     console.log("pkrandom: "+pk_random)
     // game_info_to_machine()
@@ -333,7 +355,6 @@ function get_history(obj,ws,wss){
 
 
 function test_sql(){
-  console.log("randmmmm: "+average_random(6,6))//number,rounds
   function callback_playingList(callback){
     let sql = "SELECT * FROM playing_list WHERE id = 1";
     con.query(sql,function(err,result){
