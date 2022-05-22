@@ -46,7 +46,7 @@ wss.on('connection', function connection(ws) {
       }
     CLIENTS.push(temp)
     //=========
-
+    console.log(CLIENTS.length)
     
     check_in(obj,CLIENTS,ws);
     all_machine(obj,CLIENTS,ws);
@@ -57,7 +57,7 @@ wss.on('connection', function connection(ws) {
     game_start(obj,ws,wss)
     game_info_to_machine(obj,wss,ws)
     machin_info_to_server(obj,ws,wss)
-    test_sql()
+    // test_sql()
     get_history(obj,ws,wss)
 
 
@@ -206,8 +206,8 @@ function game_start(obj,ws,wss){
         if(err) throw err;
         console.log(JSON.stringify(result_subjct))
         let data =JSON.stringify(average_random(result_subjct.length,p_list[0].round))
-        let datas
-        sql = "UPDATE playing_list SET random_subject = '"+data+"'"//++datas
+        let random_machine = JSON.stringify(average_random(CLIENTS.length,p_list[0].round))
+        sql = "UPDATE playing_list SET random_subject = '"+data+"', random_machine ='"+random_machine+"'"//++datas
         con.query(sql,function(err,result){
           if(err) throw err;
           console.log("update random_subject success");
@@ -354,7 +354,7 @@ function get_history(obj,ws,wss){
 }
 
 
-function test_sql(){
+function test_sql(CLIENTS){
   function callback_playingList(callback){
     let sql = "SELECT * FROM playing_list WHERE id = 1";
     con.query(sql,function(err,result){
@@ -363,18 +363,30 @@ function test_sql(){
     });
   }
   callback_playingList(function(result_playList){
-    let p_list = JSON.parse(result_playList)
-    console.log("inplist: "+p_list[0].subject)
-    let sql ="SELECT * FROM subject WHERE subject = '"+p_list[0].subject+"'";
+    let temp = JSON.parse(result_playList)
+    let p_list =temp[0]
+    console.log("inplist: "+p_list.subject)
+    let sql ="SELECT * FROM subject WHERE subject = '"+p_list.subject+"'";
     con.query(sql,function(err,result_subjct){
       if(err) throw err;
-      console.log(JSON.stringify(result_subjct))
-      let data =JSON.stringify(average_random(result_subjct.length,p_list[0].round))
-      sql = "UPDATE playing_list SET random_subject = '"+data+"'"
-      con.query(sql,function(err,result){
-        if(err) throw err;
-        console.log("update random_subject success");
-      })
+      let data = {
+        subject: p_list.subject,
+        round: CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round,
+        time: p_list.time,
+        en: result_subjct[JSON.parse(p_list.random_subject)[CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round]],
+        play_output : p_list.play_output,
+        play_input : p_list.play_input,
+        play_model : p_list.play_model,
+        finish : 0
+      }
+      
+      if(p_list[0].play_model= 0){
+
+        let clients = wss.clients
+        clients.forEach(client =>{
+          client.send()
+        })
+      }
     })
 
   })
