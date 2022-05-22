@@ -28,7 +28,6 @@ var game_round =0;
 const wss = new WebSocket.Server({ server:server });
 let CLIENTS = [];
 let pk_random =[];
-let subject_ranom=[];
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
@@ -40,6 +39,7 @@ wss.on('connection', function connection(ws) {
     console.log("obj.round = : ",obj.round)
     game_round++
       let temp ={
+        device_round: 0,
         ws:ws,
         device:"machin",
         id:"20"
@@ -55,9 +55,9 @@ wss.on('connection', function connection(ws) {
     get_subject(obj,ws)
     chang_subject(obj,ws)
     game_start(obj,ws,wss)
-    game_info_to_machine(obj,wss,ws)
+    // game_info_to_machine(obj,wss,ws)
     machin_info_to_server(obj,ws,wss)
-    // test_sql()
+    test_sql(CLIENTS,ws,wss)
     get_history(obj,ws,wss)
 
 
@@ -354,7 +354,7 @@ function get_history(obj,ws,wss){
 }
 
 
-function test_sql(CLIENTS){
+function test_sql(CLIENTS ,ws,wss){
   function callback_playingList(callback){
     let sql = "SELECT * FROM playing_list WHERE id = 1";
     con.query(sql,function(err,result){
@@ -365,7 +365,6 @@ function test_sql(CLIENTS){
   callback_playingList(function(result_playList){
     let temp = JSON.parse(result_playList)
     let p_list =temp[0]
-    console.log("inplist: "+p_list.subject)
     let sql ="SELECT * FROM subject WHERE subject = '"+p_list.subject+"'";
     con.query(sql,function(err,result_subjct){
       if(err) throw err;
@@ -373,24 +372,24 @@ function test_sql(CLIENTS){
         subject: p_list.subject,
         round: CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round,
         time: p_list.time,
-        en: result_subjct[JSON.parse(p_list.random_subject)[CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round]],
+        en: result_subjct[JSON.parse(p_list.random_subject)[CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round]].en,
         play_output : p_list.play_output,
         play_input : p_list.play_input,
         play_model : p_list.play_model,
         finish : 0
       }
-      
-      if(p_list[0].play_model= 0){
-
-        let clients = wss.clients
-        clients.forEach(client =>{
-          client.send()
+      let clients = wss.clients;
+      if(data.round < p_list.round){
+        if(data.play_model == 0){
+          clients.forEach(client =>{
+            client.send(JSON.stringify(data))
         })
+        }else if(data.play_model == 1){
+          let //in
+        }
       }
     })
-
   })
-
 }
 function average_random(number,rounds){//number,rounds
   let round = rounds/number;
