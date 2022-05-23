@@ -58,7 +58,7 @@ wss.on('connection', function connection(ws) {
     game_start(obj,ws,wss)
     // game_info_to_machine(obj,wss,ws)
     machin_info_to_server(obj,ws,wss)
-    test_sql(CLIENTS,ws,wss)
+    send_to_machine(CLIENTS,ws,wss)
     get_history(obj,ws,wss)
 
 
@@ -215,97 +215,11 @@ function game_start(obj,ws,wss){
         })
       })
     })
-    pk_random = average_random(CLIENTS.length,obj.round)
-    console.log("pkrandom: "+pk_random)
-    // game_info_to_machine()
+    send_to_machine(CLIENTS,ws,wss)
   }
 }
 
-function game_info_to_machine(obj,wss,ws){
-    function get_subjec_info(callback){
-      let sql = "SELECT * FROM subject where subject ='" + obj.subject+"'";
-      con.query(sql,function(err,result){
-        if (err) throw err;
-        return callback(JSON.stringify(result)) 
-      });
-    }     
-    get_subjec_info(function(result_s){
-      let result_subject = JSON.parse(result_s)
-      console.log(result_s)
-      console.log(result_s.length)
-      let sql = "SELECT * FROM playing_list";
-      con.query(sql,function(err,result){
-        if (err) throw err;
-        console.log(result_s)
-        let result_list =JSON.stringify(result);
-        let row =JSON.parse(result_list)
-        if(game_round < row[0].round){//round
 
-            ws.send(CLIENTS.length)
-            let random_subject = getRandomInt(result_subject.length)
-            if(obj.play_model == 0){//----moodle = 0
-              console.log("radoms"+random_subject)
-                let data ={
-                  subject : obj.subject,
-                  switch : 1,
-                  round : game_round,
-                  time : obj.time,
-                  en : result_subject[random_subject].en,
-                  play_output : obj.play_output,
-                  play_input : obj.play_input,
-                  play_model : obj.play_model,
-                  finish : 0
-                }
-                let clients = wss.clients  //取得所有連接中的 client
-
-                clients.forEach(client => {
-                  client.send(JSON.stringify(data))  // 發送至每個 client
-                })
-            }else if(obj.play_model == 1){//----model =1
-              console.log("obj.round = : ",obj.round)
-              console.log(CLIENTS.length)
-              let data ={
-                subject : obj.subject,
-                switch : 1,
-                round : game_round,
-                time : obj.time,
-                en : result_subject[random_subject].en,
-                play_output : obj.play_output,
-                play_input : obj.play_input,
-                play_model : obj.play_model,
-                finish : 0
-              }
-              // let clients = CLIENTS[pk_random[game_round]].ws//取得所有連接中的 client
-              let clients = CLIENTS[0].ws//取得所有連接中的 client
-              clients.send(JSON.stringify(data))
-              console.log(JSON.stringify(data))
-              console.log("client.lenth: "+CLIENTS.length)
-
-            }
-        }else{
-          let clients = wss.clients  //取得所有連接中的 client
-          game_round =0;
-          let data ={
-            finish : 1
-          }
-          clients.forEach(client => {
-          client.send(JSON.stringify(data))  // 發送至每個 client
-          })
-        }
-
-      });
-     
-      if(game_round < obj.game_round){
-        let clients = wss.clients  //取得所有連接中的 client
-        clients.forEach(client => {
-          client.send(result)  // 發送至每個 client
-        })
-      }
-    })
-  function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-  }
-}
 //洗牌
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -314,19 +228,23 @@ function shuffle(array) {
   }
 }
 //machine回傳資料
+let machine_info_count =0
 function machin_info_to_server(obj,ws,wss){
     if(obj.machin_info_to_server == true){
       if(obj.play_model == 0){
-        var count = 0
+        //計算是否每台都有登錄了
         CLIENTS.forEach(e => {
           if(e.device_round == game_round){
-            count+=1;
+            machine_info_count++;
           }
         });
         if(CLIENTS.length == count){
-
+          machine_info_count = 0;
+          game_round++
         }
-      }
+    }else if(obj.play_model == 1){
+
+    }
     let sql ="INSERT INTO history (device, subject, is_right, en_result, unix_time, play_output, play_input, play_model,device_round,playing_list_id) VALUES ('"+obj.device+"','"+ obj.subject+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"','1')";
     con.query(sql,function(err,result){
       if(err)throw err;
@@ -353,9 +271,8 @@ function get_history(obj,ws,wss){
     })
   }
 }
-
-
-function test_sql(CLIENTS ,ws,wss){
+//傳data給
+function send_to_machine(CLIENTS ,ws,wss){
   function callback_playingList(callback){
     let sql = "SELECT * FROM playing_list WHERE id = 1";
     con.query(sql,function(err,result){
@@ -366,7 +283,7 @@ function test_sql(CLIENTS ,ws,wss){
   callback_playingList(function(result_playList){
     let temp = JSON.parse(result_playList)
     let p_list =temp[0]
-    let sql ="SELECT * FROM subject WHERE subject = '"+p_list.subject+"'";
+    let sql ="SELECT * FROM subject WHERE subject = '"+p_list.subject+"' AND level = '"+p_list.level+"'";
     con.query(sql,function(err,result_subjct){
       if(err) throw err;
       let data = {
@@ -398,7 +315,7 @@ function test_sql(CLIENTS ,ws,wss){
           let clients = wss.clients;
           console.log("model 1: "+ JSON.parse(p_list.random_machine)[game_round])
           console.log("random round:"+game_round)
-          CLIENTS[JSON.parse(p_list.random_machine)[game_round]].ws.send(JSON.stringify(data))
+          CLIENTS[JSON.parse(p_list.random_machine)[game_round]].ws.send(JSON.stringify(data))//?
         }else{
           let clients = wss.clients;
           clients.forEach(client =>{
@@ -408,7 +325,6 @@ function test_sql(CLIENTS ,ws,wss){
       }
     })
   })
-  game_round++;
 }
 function average_random(number,rounds){//number,rounds
   let round = rounds/number;
@@ -455,15 +371,6 @@ function average_random(number,rounds){//number,rounds
 
 
 
-function server_to_machine(){
-  // let sql = "SELECT * FROM playing_list WHERE id = 1";
-  // con.query(sql,function(err,p_list){
-  //   let p_list = JSON.stringify(p_list)
-  //   if(err) throw err;
-  //   let sql = ""
-  // })
-
-}
 
  
 //增加學校與姓名
