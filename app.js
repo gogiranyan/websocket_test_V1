@@ -28,6 +28,7 @@ var game_round =0;
 const wss = new WebSocket.Server({ server:server });
 let CLIENTS = [];
 let pk_random =[];
+let machine_id =0;
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
@@ -36,17 +37,17 @@ wss.on('connection', function connection(ws) {
     let obj = JSON.parse(message);
     console.log(obj)
     //test=======
-    console.log("obj.round = : ",obj.round)
-    game_round++
+    console.log("obj.round = ",obj.round)
       let temp ={
         device_round: 0,
+        device_score: 0,
         ws:ws,
-        device:"machin",
-        id:"20"
+        id:machine_id
       }
+      console.log(machine_id++)
     CLIENTS.push(temp)
     //=========
-    console.log(CLIENTS.length)
+
     
     check_in(obj,CLIENTS,ws);
     all_machine(obj,CLIENTS,ws);
@@ -178,7 +179,7 @@ function game_start(obj,ws,wss){
       ws.send("error using sound and mic")
     }else{
       // var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model,finish) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"',0)";
-      var sql = "UPDATE playing_list SET level = '"+ obj.level +"', subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"',finish= '0' WHERE id = '1'";
+      var sql = "UPDATE playing_list SET level = '"+ obj.level +"', subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"', max_score = '"+obj.max_score+"',finish= '0' WHERE id = '1'";
       con.query(sql, function (err) {
         if (err) throw err;
          console.log("insert success!");
@@ -376,20 +377,38 @@ function test_sql(CLIENTS ,ws,wss){
         play_output : p_list.play_output,
         play_input : p_list.play_input,
         play_model : p_list.play_model,
-        finish : 0
+        device_score: CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_score, 
+        finish : 0,
+        max_score:p_list.max_score
       }
-      let clients = wss.clients;
-      if(data.round < p_list.round){
-        if(data.play_model == 0){
+      if(data.play_model == 0){//如果 model = 0
+        if(data.round < p_list.round){
+          let clients = wss.clients;
           clients.forEach(client =>{
             client.send(JSON.stringify(data))
-        })
-        }else if(data.play_model == 1){
-          let //in
+          })
+        }else{
+          let clients = wss.clients;
+          clients.forEach(client =>{
+            client.send("finish")
+          })
+        } 
+      }else if(data.play_model == 1){// 如果 model =1
+        if(data.device_score < p_list.max_score){
+          let clients = wss.clients;
+          console.log("model 1: "+ JSON.parse(p_list.random_machine)[game_round])
+          console.log("random round:"+game_round)
+          CLIENTS[JSON.parse(p_list.random_machine)[game_round]].ws.send(JSON.stringify(data))
+        }else{
+          let clients = wss.clients;
+          clients.forEach(client =>{
+            client.send("finish")
+          })
         }
       }
     })
   })
+  game_round++;
 }
 function average_random(number,rounds){//number,rounds
   let round = rounds/number;
