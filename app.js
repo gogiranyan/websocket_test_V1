@@ -42,7 +42,8 @@ wss.on('connection', function connection(ws) {
         device_round: 0,
         device_score: 0,
         ws:ws,
-        id:machine_id
+        id:machine_id,
+        correct_percent,
       }
       console.log(machine_id++)
     CLIENTS.push(temp)
@@ -56,9 +57,8 @@ wss.on('connection', function connection(ws) {
     get_subject(obj,ws)
     chang_subject(obj,ws)
     game_start(obj,ws,wss)
-    // game_info_to_machine(obj,wss,ws)
     machin_info_to_server(obj,ws,wss)
-    send_to_machine(CLIENTS,ws,wss)
+    // send_to_machine(CLIENTS,ws,wss)
     get_history(obj,ws,wss)
 
 
@@ -266,12 +266,33 @@ function get_history(obj,ws,wss){
     let sql = "SELECT * FROM history WHERE playing_list_id = 1";
     con.query(sql,function(err,result){
       if(err) throw err;
+      result.forEach(e=>{
+        CLIENTS[CLIENTS.findIndex(e=>{ e.id == device})].correct_percent+= e.is_right;
+      })
+    let data =[]
+
+    CLIENTS.forEach(e => {
+      let temp={
+        device: e.id,
+        correct_percent: e.correct_percent/result.device_round,
+      }
+      data.push(temp);
+    });
+
+
+      
+    let clients = wss.clients  //取得所有連接中的 client
+    clients.forEach(client => {
+         client.send(result)  // 發送至每個 client
+         
+    })
+      
         
 
     })
   }
 }
-//傳data給
+//傳data給machine
 function send_to_machine(CLIENTS ,ws,wss){
   function callback_playingList(callback){
     let sql = "SELECT * FROM playing_list WHERE id = 1";
