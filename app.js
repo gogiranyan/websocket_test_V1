@@ -41,15 +41,13 @@ wss.on('connection', function connection(ws) {
       let temp ={
         device_round: 0,
         device_score: 0,
-        ws:ws,
         id:machine_id,
-        correct_percent,
+        ws:ws
       }
       console.log(machine_id++)
     CLIENTS.push(temp)
     //=========
 
-    
     check_in(obj,CLIENTS,ws);
     all_machine(obj,CLIENTS,ws);
     access(obj,ws)
@@ -179,6 +177,7 @@ function game_start(obj,ws,wss){
       ws.send("error using sound and mic")
     }else{
       // var sql = "INSERT INTO playing_list (subject, round ,time,unix_time,play_output,play_input,play_model,finish) VALUES ('"+obj.subject+"','"+ obj.round+"','"+obj.time+"','"+obj.unix_time+"','"+obj.play_output+"','"+obj.play_input+"','"+obj.play_model+"',0)";
+      //只能先單一遊玩
       var sql = "UPDATE playing_list SET level = '"+ obj.level +"', subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"', max_score = '"+obj.max_score+"',finish= '0' WHERE id = '1'";
       con.query(sql, function (err) {
         if (err) throw err;
@@ -190,8 +189,8 @@ function game_start(obj,ws,wss){
           client.send("game_is_star")  // 發送至每個 client
         })
       });
-    }//creat random in database
-
+    }
+    //creat random in database includ random subject and rnadom machine.
     function callback_playingList(callback){
       let sql = "SELECT * FROM playing_list WHERE id = 1";
       con.query(sql,function(err,result){
@@ -218,8 +217,6 @@ function game_start(obj,ws,wss){
     send_to_machine(CLIENTS,ws,wss)
   }
 }
-
-
 //洗牌
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -228,22 +225,31 @@ function shuffle(array) {
   }
 }
 //machine回傳資料
-let machine_info_count =0
+let machine_count =0
 function machin_info_to_server(obj,ws,wss){
     if(obj.machin_info_to_server == true){
-      if(obj.play_model == 0){
+      if(obj.play_model == 0){//model 0
         //計算是否每台都有登錄了
         CLIENTS.forEach(e => {
           if(e.device_round == game_round){
-            machine_info_count++;
+            machine_count++;
           }
         });
-        if(CLIENTS.length == count){
-          machine_info_count = 0;
+        if(CLIENTS.length == machine_count){
+          machine_count = 0;
           game_round++
         }
-    }else if(obj.play_model == 1){
-
+    }else if(obj.play_model == 1){//model 1
+      if(obj.is_right == 1){
+        machine_count++
+      }else if (obj.is_right == 0){
+        machine_count++
+      }
+      //如果都有防禦跟攻擊都有回傳的話進下一回合
+      if(machine_count === 2){
+        game_round++;
+        machine_count=0
+      }    
     }
     let sql ="INSERT INTO history (device, subject, is_right, en_result, unix_time, play_output, play_input, play_model,device_round,playing_list_id) VALUES ('"+obj.device+"','"+ obj.subject+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"','1')";
     con.query(sql,function(err,result){
@@ -256,11 +262,14 @@ function machin_info_to_server(obj,ws,wss){
       device_round:obj.device_round,
     }
     CLIENTS.push(temp)
+
     console.log(CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round+=1)
     console.log("deviec round:"+CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round)
     console.log("array index: "+CLIENTS.findIndex(e=>{return e.ws == ws}))
+    ws.send(JSON.stringify(CLIENTS))
   }
 }
+//取得資料
 function get_history(obj,ws,wss){
   if(obj.get_history == true){
     let sql = "SELECT * FROM history WHERE playing_list_id = 1";
@@ -278,18 +287,11 @@ function get_history(obj,ws,wss){
       }
       data.push(temp);
     });
-
-
-      
     let clients = wss.clients  //取得所有連接中的 client
     clients.forEach(client => {
          client.send(result)  // 發送至每個 client
          
-    })
-      
-        
-
-    })
+    })})
   }
 }
 //傳data給machine
