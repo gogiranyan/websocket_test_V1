@@ -9,6 +9,8 @@ const url = require('url');
 const { clone } = require('nodemon/lib/utils');
 const { contentDisposition } = require('express/lib/utils');
 const res = require('express/lib/response');
+const { restart } = require('nodemon');
+const { copyFileSync } = require('fs');
 
 //connect mysql---------------
 var con = mysql.createConnection({
@@ -57,7 +59,8 @@ wss.on('connection', function connection(ws) {
     game_start(obj,ws,wss)
     machin_info_to_server(obj,ws,wss)
     // send_to_machine(CLIENTS,ws,wss)
-    get_history(obj,ws,wss)
+    get_playingList(obj,ws,wss)
+    get_detail(obj,ws,wss)
 
 
     let clients = wss.clients  //取得所有連接中的 client
@@ -269,31 +272,6 @@ function machin_info_to_server(obj,ws,wss){
     ws.send(JSON.stringify(CLIENTS))
   }
 }
-//取得資料
-function get_history(obj,ws,wss){
-  if(obj.get_history == true){
-    let sql = "SELECT * FROM history WHERE playing_list_id = 1";
-    con.query(sql,function(err,result){
-      if(err) throw err;
-      result.forEach(e=>{
-        CLIENTS[CLIENTS.findIndex(e=>{ e.id == device})].correct_percent+= e.is_right;
-      })
-    let data =[]
-
-    CLIENTS.forEach(e => {
-      let temp={
-        device: e.id,
-        correct_percent: e.correct_percent/result.device_round,
-      }
-      data.push(temp);
-    });
-    let clients = wss.clients  //取得所有連接中的 client
-    clients.forEach(client => {
-         client.send(result)  // 發送至每個 client
-         
-    })})
-  }
-}
 //傳data給machine
 function send_to_machine(CLIENTS ,ws,wss){
   function callback_playingList(callback){
@@ -349,6 +327,7 @@ function send_to_machine(CLIENTS ,ws,wss){
     })
   })
 }
+//平均分配亂數 
 function average_random(number,rounds){//number,rounds
   let round = rounds/number;
   let random_round =[]
@@ -391,11 +370,45 @@ function average_random(number,rounds){//number,rounds
   }
   return random_round
 }
+//取得資料
+function get_playingList(obj,ws,wss){
+  if(obj.get_playingList == true){
+    let sql = "SELECT * FROM playing_list WHERE account = '"+obj.account+"'";
+    con.query(sql,function(err,result){
+      if(err) throw err;
+      ws.send(JSON.stringify(result))
+  })
+  }
+}
 
+function get_detail(obj,ws,wss){
+  if(obj.get_detail == true){
+    let sql = "SELECT * FROM history WHERE playing_list_id = '"+obj.id+"'";
+    con.query(sql,function(err,result){
+      if(err) throw err;
+      let devices =[]
+      result.forEach(result_e => {
+        if(devices.findIndex(e=>{return e.device_id == result_e.device})==-1){
+            let device = {
+            device_id:result_e.device,
+            right_pa:0,
+            score:0,
+            rank:0,
+            wrong_info:[]
+          }
+          devices.push(device)
+        }
+        if(result_e.is_right == 1){
+          devices[devices.findIndex(e=>{return result_e.device == e.device_id})].score++;
+        }
+        re
+        
+        
+      });
+    })
+  }
+}
 
-
-
- 
 //增加學校與姓名
 app.get('/', (req, res) => res.send('Hello World!'))
 server.listen(3000, () => console.log(`Lisening on port :3000`))
