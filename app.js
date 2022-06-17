@@ -34,20 +34,23 @@ let device_id =0;
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
-  //接收client訊息後依obj的json內容進function做處理
-  let temp ={
-    device_id:device_id,
-    device_round: 0,
-    device_score: 0,
-    ws:ws
-  }
-device_id++;
-CLIENTS.push(temp)
+  device_id++;
   ws.on('message', function incoming(message) {
     let obj = JSON.parse(message);
     console.log(obj)
+    //接收client訊息後依obj的json內容進function做處理
+    let temp ={
+      device_type:obj.device_type,
+      device_id:obj.device_id,
+      device_round: 0,
+      device_score: 0,
+      ws:ws
+    }
+    CLIENTS.push(temp)
     //=========
-    ws.send(JSON.stringify(temp.ws._sender._socket._server._connections))
+    if(obj.connent == true){//connection log
+    }
+    // ws.send(JSON.stringify("connection:"+temp.ws._sender._socket._server._connections))
     check_in(obj,CLIENTS,ws);
     all_machine(obj,CLIENTS,ws);
     access(obj,ws)
@@ -65,7 +68,6 @@ CLIENTS.push(temp)
     let clients = wss.clients  //取得所有連接中的 client
     clients.forEach(client => {
          client.send(CLIENTS.length)  // 發送至每個 client
-         
     })
     console.log("CLIENTS: "+CLIENTS.length);
   });
@@ -73,7 +75,6 @@ CLIENTS.push(temp)
   ws.addEventListener('close', function(event) {
     console.log('client end');
     let i = 0; 
-    
     CLIENTS.forEach(e=>{
 	    if(e.ws === ws){
         CLIENTS.splice(i, 1);
@@ -209,10 +210,13 @@ function game_start(obj,ws,wss){
         if(err) throw err;
         console.log(JSON.stringify(result_subjct))
         let data =JSON.stringify(average_random(result_subjct.length,p_list[0].round))
+        console.log("data")
         let random_machine = JSON.stringify(average_random(CLIENTS.length,p_list[0].round))
-        sql = "UPDATE playing_list SET random_subject = '"+data+"', random_machine ='"+random_machine+"'"//++datas
-        con.query(sql,function(err,result){
+        let sql = "UPDATE playing_list  SET random_subject = '"+data+"', random_machine ='"+random_machine+"' WHERE id = 1"//++datas
+        con.query(sql,function(err){
           if(err) throw err;
+
+
           console.log("update random_subject success");
         })
       })
@@ -227,6 +231,11 @@ function shuffle(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
+
+
+
+
+
 //machine回傳資料
 let machine_count =0
 function machin_info_to_server(obj,ws,wss){
@@ -291,7 +300,7 @@ function send_to_machine(CLIENTS ,ws,wss){
         subject: p_list.subject,
         round: CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round,
         time: p_list.time,
-        en: result_subjct[JSON.parse(p_list.random_subject)[CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round]].en,
+        // en: result_subjct[JSON.parse(p_list.random_subject)[CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round]].en,
         play_output : p_list.play_output,
         play_input : p_list.play_input,
         play_model : p_list.play_model,
@@ -410,7 +419,9 @@ function get_detail(obj,ws,wss){
 let i =1;
 
 function test_ws(obj,CLIENTS,ws){
-  
+  CLIENTS.forEach(client => {
+    client.ws.send()
+  });  
   
 }
 
