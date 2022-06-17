@@ -30,26 +30,24 @@ var game_round =0;
 const wss = new WebSocket.Server({ server:server });
 let CLIENTS = [];
 let pk_random =[];
-let machine_id =0;
+let device_id =0;
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
   //接收client訊息後依obj的json內容進function做處理
+  let temp ={
+    device_id:device_id,
+    device_round: 0,
+    device_score: 0,
+    ws:ws
+  }
+device_id++;
+CLIENTS.push(temp)
   ws.on('message', function incoming(message) {
     let obj = JSON.parse(message);
     console.log(obj)
-    //test=======
-    console.log("obj.round = ",obj.round)
-      let temp ={
-        device_round: 0,
-        device_score: 0,
-        id:machine_id,
-        ws:ws
-      }
-      console.log(machine_id++)
-    CLIENTS.push(temp)
     //=========
-
+    ws.send(JSON.stringify(temp.ws._sender._socket._server._connections))
     check_in(obj,CLIENTS,ws);
     all_machine(obj,CLIENTS,ws);
     access(obj,ws)
@@ -61,11 +59,12 @@ wss.on('connection', function connection(ws) {
     // send_to_machine(CLIENTS,ws,wss)
     get_playingList(obj,ws,wss)
     get_detail(obj,ws,wss)
+    test_ws(obj,CLIENTS,ws)
 
 
     let clients = wss.clients  //取得所有連接中的 client
     clients.forEach(client => {
-         client.send("ininder")  // 發送至每個 client
+         client.send(CLIENTS.length)  // 發送至每個 client
          
     })
     console.log("CLIENTS: "+CLIENTS.length);
@@ -74,6 +73,7 @@ wss.on('connection', function connection(ws) {
   ws.addEventListener('close', function(event) {
     console.log('client end');
     let i = 0; 
+    
     CLIENTS.forEach(e=>{
 	    if(e.ws === ws){
         CLIENTS.splice(i, 1);
@@ -370,7 +370,7 @@ function average_random(number,rounds){//number,rounds
   }
   return random_round
 }
-//取得資料
+//取得list資料
 function get_playingList(obj,ws,wss){
   if(obj.get_playingList == true){
     let sql = "SELECT * FROM playing_list WHERE account = '"+obj.account+"'";
@@ -401,13 +401,22 @@ function get_detail(obj,ws,wss){
         if(result_e.is_right == 1){
           devices[devices.findIndex(e=>{return result_e.device == e.device_id})].score++;
         }
-        re
         
         
       });
     })
   }
 }
+let i =1;
+
+function test_ws(obj,CLIENTS,ws){
+  
+  
+}
+
+
+
+
 
 //增加學校與姓名
 app.get('/', (req, res) => res.send('Hello World!'))
