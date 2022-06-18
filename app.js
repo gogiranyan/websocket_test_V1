@@ -50,7 +50,7 @@ wss.on('connection', function connection(ws) {
     //=========
     if(obj.connent == true){//connection log
     }
-    // ws.send(JSON.stringify("connection:"+temp.ws._sender._socket._server._connections))
+    ws.send(JSON.stringify("connection:"+temp.ws._sender._socket._server._connections))
     check_in(obj,CLIENTS,ws);
     all_machine(obj,CLIENTS,ws);
     access(obj,ws)
@@ -232,10 +232,6 @@ function shuffle(array) {
   }
 }
 
-
-
-
-
 //machine回傳資料
 let machine_count =0
 function machin_info_to_server(obj,ws,wss){
@@ -263,22 +259,23 @@ function machin_info_to_server(obj,ws,wss){
         machine_count=0
       }    
     }
-    let sql ="INSERT INTO history (device, subject, is_right, en_result, unix_time, play_output, play_input, play_model,device_round,playing_list_id) VALUES ('"+obj.device+"','"+ obj.subject+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"','1')";
+    let sql ="INSERT INTO history (device, subject, is_right, en_result, unix_time,en,play_output, play_input, play_model,device_round,playing_list_id) VALUES ('"+obj.device+"','"+ obj.subject+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.en + "','" + obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"','1')";
     con.query(sql,function(err,result){
       if(err)throw err;
       console.log("update success!");
     })
-    let temp={
-      ws:ws,
-      device:"101",
-      device_round:obj.device_round,
-    }
-    CLIENTS.push(temp)
+    send_to_machine(CLIENTS,ws,wss)
+    // let temp={
+    //   ws:ws,
+    //   device:"101",
+    //   device_round:obj.device_round,
+    // }
+    // CLIENTS.push(temp)
 
-    console.log(CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round+=1)
-    console.log("deviec round:"+CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round)
-    console.log("array index: "+CLIENTS.findIndex(e=>{return e.ws == ws}))
-    ws.send(JSON.stringify(CLIENTS))
+    // console.log(CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round+=1)
+    // console.log("deviec round:"+CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round)
+    // console.log("array index: "+CLIENTS.findIndex(e=>{return e.ws == ws}))
+    
   }
 }
 //傳data給machine
@@ -300,7 +297,7 @@ function send_to_machine(CLIENTS ,ws,wss){
         subject: p_list.subject,
         round: CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round,
         time: p_list.time,
-        // en: result_subjct[JSON.parse(p_list.random_subject)[CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round]].en,
+        en: result_subjct[JSON.parse(p_list.random_subject)[CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round]].en,
         play_output : p_list.play_output,
         play_input : p_list.play_input,
         play_model : p_list.play_model,
