@@ -247,6 +247,7 @@ function machin_info_to_server(obj,ws,wss){
           machine_count = 0;
           game_round++
         }
+        //if log in all , sand_to machine
     }else if(obj.play_model == 1){//model 1
       if(obj.is_right == 1){
         machine_count++
@@ -293,23 +294,29 @@ function send_to_machine(CLIENTS ,ws,wss){
     let sql ="SELECT * FROM subject WHERE subject = '"+p_list.subject+"' AND level = '"+p_list.level+"'";
     con.query(sql,function(err,result_subjct){
       if(err) throw err;
+      let result_temp=[];
+      //make result_temp to use radom_subject
+      result_subjct.forEach(element => {
+        let temp = JSON.stringify(element)
+        result_temp.push(JSON.parse(temp))
+      });
       let data = {
         subject: p_list.subject,
-        round: CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round,
+        round: game_round,
         time: p_list.time,
-        en: result_subjct[JSON.parse(p_list.random_subject)[CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round]].en,
+        en: result_subjct[p_list.random_subject[game_round]].en,
         play_output : p_list.play_output,
         play_input : p_list.play_input,
         play_model : p_list.play_model,
-        device_score: CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_score, 
         finish : 0,
         max_score:p_list.max_score
       }
       if(data.play_model == 0){//如果 model = 0
         if(data.round < p_list.round){
+          //sand all
           let clients = wss.clients;
           clients.forEach(client =>{
-            client.send(JSON.stringify(data))
+            client.send(data)
           })
         }else{
           let clients = wss.clients;
