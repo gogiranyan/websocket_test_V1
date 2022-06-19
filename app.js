@@ -31,23 +31,36 @@ const wss = new WebSocket.Server({ server:server });
 let CLIENTS = [];
 let pk_random =[];
 let device_id =0;
+
 wss.on('connection', function connection(ws) {
   console.log('A new client Connected!');
   ws.send('Welcome New Client!');
   device_id++;
-  ws.on('message', function incoming(message) {
-    let obj = JSON.parse(message);
-    console.log(obj)
-    //接收client訊息後依obj的json內容進function做處理
+      //接收client訊息後依obj的json內容進function做處理
+      //test
     let temp ={
-      device_type:obj.device_type,
-      device_id:obj.device_id,
+      device_type:103,
+      device_id:device_id,
       device_round: 0,
-      device_score: 0,
       ws:ws
     }
     CLIENTS.push(temp)
     //=========
+  ws.send(JSON.stringify("connection:"+temp.ws._sender._socket._server._connections))
+  ws.send(JSON.stringify("CLIENTS.LENTS:"+CLIENTS.length))
+  ws.on('message', function incoming(message) {
+    let obj = JSON.parse(message);
+    console.log(obj)
+    // //接收client訊息後依obj的json內容進function做處理
+    // let temp ={
+    //   device_type:obj.device_type,
+    //   device_id:obj.device_id,
+    //   device_round: 0,
+    //   device_score: 0,
+    //   ws:ws
+    // }
+    // CLIENTS.push(temp)
+    // //=========
     if(obj.connent == true){//connection log
     }
     ws.send(JSON.stringify("connection:"+temp.ws._sender._socket._server._connections))
@@ -58,7 +71,7 @@ wss.on('connection', function connection(ws) {
     get_subject(obj,ws)
     chang_subject(obj,ws)
     game_start(obj,ws,wss)
-    machin_info_to_server(obj,ws,wss)
+    machin_info_to_server(obj,ws,wss,CLIENTS)
     // send_to_machine(CLIENTS,ws,wss)
     get_playingList(obj,ws,wss)
     get_detail(obj,ws,wss)
@@ -234,20 +247,19 @@ function shuffle(array) {
 
 //machine回傳資料
 let machine_count =0
-function machin_info_to_server(obj,ws,wss){
+function machin_info_to_server(obj,ws,wss,CLIENTS){
+
     if(obj.machin_info_to_server == true){
       if(obj.play_model == 0){//model 0
         //計算是否每台都有登錄了
-        CLIENTS.forEach(e => {
-          if(e.device_round == game_round){
-            machine_count++;
-          }
-        });
+        machine_count++;
+
         if(CLIENTS.length == machine_count){
+          console.log("innnnn")
+          // console.log("connecton "+CLIENTS[length-1].ws._sender._socket._server._connections)
           machine_count = 0;
-          game_round++
+          send_to_machine(CLIENTS,ws,wss)//if log in all , sand_to machine
         }
-        //if log in all , sand_to machine
     }else if(obj.play_model == 1){//model 1
       if(obj.is_right == 1){
         machine_count++
@@ -265,7 +277,7 @@ function machin_info_to_server(obj,ws,wss){
       if(err)throw err;
       console.log("update success!");
     })
-    send_to_machine(CLIENTS,ws,wss)
+    // send_to_machine(CLIENTS,ws,wss)
     // let temp={
     //   ws:ws,
     //   device:"101",
@@ -300,43 +312,47 @@ function send_to_machine(CLIENTS ,ws,wss){
         let temp = JSON.stringify(element)
         result_temp.push(JSON.parse(temp))
       });
-      let data = {
-        subject: p_list.subject,
-        round: game_round,
-        time: p_list.time,
-        en: result_subjct[p_list.random_subject[game_round]].en,
-        play_output : p_list.play_output,
-        play_input : p_list.play_input,
-        play_model : p_list.play_model,
-        finish : 0,
-        max_score:p_list.max_score
-      }
-      if(data.play_model == 0){//如果 model = 0
-        if(data.round < p_list.round){
-          //sand all
+      if(game_round < p_list.round){
+        
+        console.log(JSON.parse( p_list.random_subject)[game_round])
+        let data = {
+          subject: p_list.subject,
+          round: game_round,
+          time: p_list.time,
+          en: result_subjct[JSON.parse( p_list.random_subject)[game_round]].en,
+          play_output : p_list.play_output,
+          play_input : p_list.play_input,
+          play_model : p_list.play_model,
+          finish : 0,
+          max_score:p_list.max_score
+        }
+        if(data.play_model == 0){//如果 model = 0
+          console.log("game round: "+game_round)
+          console.log("Prountround: "+p_list.round)
           let clients = wss.clients;
           clients.forEach(client =>{
-            client.send(data)
+            client.send(JSON.stringify(data))
           })
-        }else{
-          let clients = wss.clients;
-          clients.forEach(client =>{
-            client.send("finish")
-          })
+          game_round++
+        }else if(data.play_model == 1){// 如果 model =1
+          if(data.device_score < p_list.max_score){
+            let clients = wss.clients;
+            console.log("model 1: "+ JSON.parse(p_list.random_machine)[game_round])
+            console.log("random round:"+game_round)
+            CLIENTS[JSON.parse(p_list.random_machine)[game_round]].ws.send(JSON.stringify(data))//?
+          }else{
+            let clients = wss.clients;
+            clients.forEach(client =>{
+              client.send("finish")
+            })
+          }
         } 
-      }else if(data.play_model == 1){// 如果 model =1
-        if(data.device_score < p_list.max_score){
-          let clients = wss.clients;
-          console.log("model 1: "+ JSON.parse(p_list.random_machine)[game_round])
-          console.log("random round:"+game_round)
-          CLIENTS[JSON.parse(p_list.random_machine)[game_round]].ws.send(JSON.stringify(data))//?
-        }else{
+      }else{
           let clients = wss.clients;
           clients.forEach(client =>{
             client.send("finish")
           })
         }
-      }
     })
   })
 }
