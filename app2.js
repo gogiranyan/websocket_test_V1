@@ -28,6 +28,7 @@ con.connect(function(err) {
 var game_round =0;
 //websocket server
 const wss = new WebSocket.Server({ server:server });
+let CLIENTS_new =[];
 let CLIENTS = [];
 let pk_random =[];
 let device_id =0;
@@ -39,7 +40,7 @@ wss.on('connection', function connection(ws) {
       //接收client訊息後依obj的json內容進function做處理
       //test
     let temp ={
-      device_type:103,
+      device_type:obj.CLIENTS,
       device_id:device_id,
       device_round: 0,
       cassette_count: 0,
@@ -52,6 +53,12 @@ wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
     let obj = JSON.parse(message);
     console.log(obj)
+
+    
+
+
+
+
     // //接收client訊息後依obj的json內容進function做處理
     // let temp ={
     //   device_type:obj.device_type,
@@ -98,15 +105,31 @@ wss.on('connection', function connection(ws) {
     i = 0
   })
 });
+function problem(err){
+
+
+}
+
+
 //登陸裝置
 function check_in(obj,CLIENTS,ws){
   if(obj.check_in == true){
+   if(obj.device == "phone"){
     let temp ={
-      ws:ws,
-      device_id:obj.device_id,
-      device_round:0
+        ws:ws,
+        account:obj.account,
+        activity:false,
+        machine_connection,
     }
-    CLIENTS.push(temp)
+    CLIENTS_new.push(temp)
+   }else if(obj.device == "machine"){
+    let temp ={
+        ws:ws,
+        machine_id:device,//name?
+        device_round: 0,
+        cassette_count: obj.cassette_count,
+      }
+   }
   }
 }
 //確認扣除手機後連線中的機器
@@ -199,9 +222,7 @@ function game_start(obj,ws,wss){
       var sql = "UPDATE playing_list SET level = '"+ obj.level +"', subject = '"+ obj.subject +"',round = '"+ obj.round +"',time= '"+ obj.time +"',unix_time = '"+ obj.unix_time +"',play_output = '"+ obj.play_output +"',play_input = '"+ obj.play_input +"',play_model = '"+ obj.play_model +"', max_score = '"+obj.max_score+"',finish= '0' WHERE id = '1'";
       con.query(sql, function (err) {
         if (err) throw err;
-         console.log("insert success!");
-        ws.send("insert success!");
-
+         console.log("insert playing list success!");
         let clients = wss.clients  //取得所有連接中的 client
         clients.forEach(client => {
           client.send("game_is_star")  // 發送至每個 client
@@ -452,6 +473,7 @@ function cassette_set(params) {
 
 
 function get_model0_subject(CLIENTS,game_round,ws,wss){
+
   
   
 }
@@ -466,3 +488,4 @@ function get_model0_subject(CLIENTS,game_round,ws,wss){
 //增加學校與姓名
 app.get('/', (req, res) => res.send('Hello World!'))
 server.listen(3000, () => console.log(`Lisening on port :3000`))
+
