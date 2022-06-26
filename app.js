@@ -42,6 +42,7 @@ wss.on('connection', function connection(ws) {
       device_type:103,
       device_id:device_id,
       device_round: 0,
+      cassette_count: 0,
       ws:ws
     }
     CLIENTS.push(temp)
@@ -97,6 +98,12 @@ wss.on('connection', function connection(ws) {
     i = 0
   })
 });
+function problem(err){
+  
+
+}
+
+
 //登陸裝置
 function check_in(obj,CLIENTS,ws){
   if(obj.check_in == true){
@@ -229,7 +236,6 @@ function game_start(obj,ws,wss){
         con.query(sql,function(err){
           if(err) throw err;
 
-
           console.log("update random_subject success");
         })
       })
@@ -323,7 +329,7 @@ function send_to_machine(CLIENTS ,ws,wss){
           play_output : p_list.play_output,
           play_input : p_list.play_input,
           play_model : p_list.play_model,
-          finish : 0,
+          finish : 0, 
           max_score:p_list.max_score
         }
         if(data.play_model == 0){//如果 model = 0
@@ -444,6 +450,21 @@ function test_ws(obj,CLIENTS,ws){
   });  
   
 }
+
+function cassette_set(params) {
+  
+}
+
+
+
+function get_model0_subject(CLIENTS,game_round,ws,wss){
+
+  
+  
+}
+
+
+
 
 
 
