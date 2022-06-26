@@ -40,8 +40,8 @@ wss.on('connection', function connection(ws) {
       //接收client訊息後依obj的json內容進function做處理
       //test
     let temp ={
-      device_type:obj.CLIENTS,
-      device_id:device_id,
+      device_type:13,
+      device_id:26,
       device_round: 0,
       cassette_count: 0,
       ws:ws
@@ -52,7 +52,9 @@ wss.on('connection', function connection(ws) {
   ws.send(JSON.stringify("CLIENTS.LENTS:"+CLIENTS.length))
   ws.on('message', function incoming(message) {
     let obj = JSON.parse(message);
+
     console.log(obj)
+    game_config(ws)
 
     
 
@@ -120,6 +122,7 @@ function check_in(obj,CLIENTS,ws){
         account:obj.account,
         activity:false,
         machine_connection,
+        game_round:0
     }
     CLIENTS_new.push(temp)
    }else if(obj.device == "machine"){
@@ -474,8 +477,22 @@ function cassette_set(params) {
 
 function get_model0_subject(CLIENTS,game_round,ws,wss){
 
+
+
   
   
+}
+function game_config(ws){
+    let sql ="SELECT * FROM playing_list WHERE id = 1";
+    con.query(sql,function(err,require){
+        if(err) throw err;
+        let temp ={
+            account:"bob",
+            time:obj.time,
+            play_model:obj.play_model,
+        }
+        ws.send(JSON.stringify(require))
+    })
 }
 
 
