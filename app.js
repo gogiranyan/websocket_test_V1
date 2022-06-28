@@ -272,21 +272,6 @@ function machin_info_to_server(obj,ws,wss,CLIENTS){
         machine_count=0
       }    
     }
-<<<<<<< HEAD
-    
-    //test==
-    let temp={
-      ws:ws,
-      device_round:obj.device_round,
-    }
-    //=====
-    
-    CLIENTS.push(temp)
-    console.log(CLIENTS[CLIENTS.findIndex(e=>{return e.ws == ws})].device_round+=1)
-    console.log("array index: "+CLIENTS.findIndex(e=>{return e.ws == ws}))
-  }
-
-=======
     let sql ="INSERT INTO history (device, subject, is_right, en_result, unix_time,en,play_output, play_input, play_model,device_round,playing_list_id) VALUES ('"+obj.device+"','"+ obj.subject+"','"+ obj.is_right+"','"+ obj.en_result+"','"+ obj.unix_time+"','"+ obj.en + "','" + obj.play_output+"','"+ obj.play_input+"','"+ obj.play_model+"','"+ obj.device_round+"','1')";
     con.query(sql,function(err,result){
       if(err)throw err;
@@ -462,7 +447,7 @@ function test_ws(obj,CLIENTS,ws){
 
 function cassette_set(params) {
   
->>>>>>> 8c5816bb6b5d54983e7cdcb0737a0b3aa4f0c928
+
 }
 
 
