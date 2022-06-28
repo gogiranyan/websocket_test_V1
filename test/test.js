@@ -1,28 +1,27 @@
-let c=[]
-let data ={
-	ws:"1",
-  round:"2"
-}
-c.push(data)
-data ={
-	ws:"3",
-  round:"2"
-}
-c.push(data)
-data ={
-	ws:"3",
-  round:"2"
-}
-c.push(data)
+var mysql = require('mysql');
 
-let ws ={
-    g: 20
+var con = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "bses10302",
+  database: "test"
+});
+let res;
+function sqlcb(callback){
+  con.connect(function(err) {
+    if (err) throw err;
+    //Select all customers and return the result object:
+    con.query("SELECT * FROM playing_list", function (err, result, fields) {
+      if (err) throw err;
+      // console.log(result);
+      let random_subject_array = result[0].random_subject
+      callback(JSON.parse(random_subject_array))
+      
+    });
+  });
 }
-data ={
-	ws:"3",
-  round:"2",
-  ws:ws
-}
-c.push(data)
-console.log(JSON.stringify(c))
-console.log(c.findIndex(object=>{return object.ws === "1"}))
+sqlcb(function(callback){
+  console.log(callback[0])
+  res = callback
+})
+
